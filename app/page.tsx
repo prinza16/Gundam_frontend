@@ -1,6 +1,10 @@
+import Input from "./components/ui/Input"
+
 const HomePage = () => {
   return (
-    <div>HomePage</div>
+    <div>
+      <Input />
+    </div>
   )
 }
 export default HomePage

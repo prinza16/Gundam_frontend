@@ -11,3 +11,10 @@ export interface Grade {
     create_date: string
     update_date: string
 }
+
+export interface PaginatedResponseGrade {
+    count: number
+    next: string | null
+    previous: string | null
+    results: Grade[]
+}
