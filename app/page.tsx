@@ -1,9 +1,9 @@
-import Input from "./components/ui/Input"
+'use client'
 
 const HomePage = () => {
   return (
     <div>
-      <Input />
+        Homepage
     </div>
   )
 }

@@ -21,7 +21,7 @@ const ModalDelete = ({ open, onClose, children}: ModalDeleteProps) => {
             {` bg-white rounded-xl shadow p-20 transition-all
                     max-w-md max-h-[90vh] overflow-y-auto 
                     flex flex-col justify-center items-center
-            ${open ? "scale-100 opacity-100" : "scalel-125 opacity-0"}
+            ${open ? "scale-100 opacity-100" : "scale-125 opacity-0"}
             `}>
                 <button
                     onClick={onClose}

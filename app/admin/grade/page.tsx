@@ -7,9 +7,10 @@ import CreateGradeModal from "./components/CreateGradeModal"
 import EditGradeModal from "./components/EditGradeModal"
 import ModalDelete from "@/app/components/ui/ModalDelete"
 import { FaGear, FaPlus, FaTrash } from "react-icons/fa6"
+import { useToast } from "@/app/admin/ToastContext";
 
-
-const GradeList = () => {
+const GradeList: React.FC = () => {
+  const showToast = useToast();
   const [grades, setGrades] = useState<Grade[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -34,8 +35,10 @@ const GradeList = () => {
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
+        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}`, 'error');
       } else {
         setError("An unknown error occurred.");
+        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล", 'error');
       }
     } finally {
       setLoading(false);
@@ -44,7 +47,7 @@ const GradeList = () => {
 
   useEffect(() => {
     fetchGrades();
-  }, []);
+  }, [showToast]);
 
   const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
@@ -93,14 +96,16 @@ const GradeList = () => {
         throw new Error(`HTTP error! status: ${response.status}, Details: ${JSON.stringify(errorData)}`);
       }
 
-      alert('ข้อมูลถูกลบเรียบร้อยแล้ว');
+      showToast('ลบข้อมูลเกรดเรียบร้อยแล้ว!', 'success');
       fetchGrades();
       handleCloseDeleteModal();
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
+        showToast(`เกิดข้อผิดพลาดในการลบ: ${err.message}`, 'error');
       } else {
         setError("An unknown error occurred during deletion.");
+        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการลบข้อมูล", 'error');
       }
     } finally {
       setLoading(false);

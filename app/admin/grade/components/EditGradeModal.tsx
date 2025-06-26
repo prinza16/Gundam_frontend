@@ -2,8 +2,9 @@
 
 import Modal from "@/app/components/ui/Modal";
 import { Grade } from "@/types/grade";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useToast } from "@/app/admin/ToastContext";
+import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 
 interface EditGradeModalProps {
   isOpen: boolean;
@@ -16,12 +17,12 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
   isOpen,
   onClose,
   gradeId,
-  onGradeUpdated,
+  onGradeUpdated
 }) => {
+  const showToast = useToast();
   const [formData, setFormData] = useState({ grade_name: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (!isOpen || !gradeId) {
@@ -42,15 +43,17 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
+          showToast(`เกิดข้อผิดพลาดในการดึงข้อมูลเกรด: ${err.message}`, 'error');
         } else {
           setError("An unknown error occurred.");
+          showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูลเกรด", 'error');
         }
       } finally {
         setLoading(false);
       }
     };
     fetchGradeDetail();
-  }, [isOpen, gradeId]);
+  }, [isOpen, gradeId, showToast]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,15 +83,16 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
         );
       }
 
-      const updatedGrade: Grade = await response.json();
-      alert("ชื่อเกรดถูกแก้ไขเรียบร้อยแล้ว!");
+      showToast("ชื่อเกรดถูกแก้ไขเรียบร้อยแล้ว!", "success");
       onGradeUpdated();
       onClose();
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
+        showToast(`เกิดข้อผิดพลาดในการแก้ไข: ${err.message}`, 'error');
       } else {
         setError("An unknown error occurred during update.");
+        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการแก้ไขข้อมูล", 'error');
       }
     } finally {
       setLoading(false);
@@ -98,9 +102,7 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
   if (loading) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} title="กำลังโหลดข้อมูลเกรด...">
-        <div className="flex justify-center items-center h-24">
-          <p>กำลังโหลด...</p>
-        </div>
+        <LoadingSpinner />
       </Modal>
     );
   }
