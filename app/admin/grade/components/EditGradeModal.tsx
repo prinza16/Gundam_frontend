@@ -83,7 +83,7 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
         );
       }
 
-      showToast("ชื่อเกรดถูกแก้ไขเรียบร้อยแล้ว!", "success");
+      showToast("Success!", "success");
       onGradeUpdated();
       onClose();
     } catch (err) {
@@ -111,7 +111,7 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`แก้ไขข้อมูลเกรด: ${formData.grade_name}`}
+      title={`Edit Data`}
     >
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -134,17 +134,17 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-150 ease-in-out"
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
             disabled={loading}
           >
-            ยกเลิก
+            Cancel
           </button>
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
             disabled={loading}
           >
-            {loading ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}
+            {loading ? 'Saving...' : 'Save'}
           </button>
         </div>
       </form>

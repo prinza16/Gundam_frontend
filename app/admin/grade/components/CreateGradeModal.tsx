@@ -37,7 +37,7 @@ const CreateGradeModal: React.FC<CreateGradeModalProps> = ({ isOpen, onClose, on
 
       await response.json()
 
-      showToast('สร้างเกรดใหม่สำเร็จแล้ว!', 'success')
+      showToast('Success!', 'success')
 
       onGradeCreated()
       onClose() 
@@ -57,7 +57,7 @@ const CreateGradeModal: React.FC<CreateGradeModalProps> = ({ isOpen, onClose, on
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} title="สร้างเกรดใหม่" >
+      <Modal isOpen={isOpen} onClose={onClose} title="Create Data" >
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="gradeName" className="block text-gray-700 text-sm font-bold mb-2">
@@ -78,17 +78,17 @@ const CreateGradeModal: React.FC<CreateGradeModalProps> = ({ isOpen, onClose, on
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-150 ease-in-out"
+              className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
               disabled={loading}
             >
-              ยกเลิก
+              Cancel
             </button>
             <button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
               disabled={loading}
             >
-              {loading ? 'กำลังสร้าง...' : 'สร้าง'}
+              {loading ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>

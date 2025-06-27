@@ -20,7 +20,7 @@ const ToastNotification: React.FC<ToastProps> = ({ message, type, onClose, durat
       const hideTimer = setTimeout(() => {
         setShowBackdrop(false); 
         onClose(); 
-      }, 300); 
+      }, 200); 
       return () => clearTimeout(hideTimer);
     }, duration);
 
@@ -80,7 +80,7 @@ const ToastNotification: React.FC<ToastProps> = ({ message, type, onClose, durat
               setTimeout(() => {
                 setShowBackdrop(false); 
                 onClose(); 
-              }, 300);
+              }, 200);
             }}
             className="absolute top-3 right-3 p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none" 
           >

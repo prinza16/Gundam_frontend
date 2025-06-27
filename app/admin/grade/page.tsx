@@ -189,21 +189,21 @@ const GradeList: React.FC = () => {
           <div className="text-center w-full">
             <FaTrash size={60} className="mx-auto text-red-500" />
             <div className="mx-auto my-4">
-              <h3 className="text-3xl font-black text-gray-800">ยืนยันการลบ</h3>
-              <p className="text-md text-gray-500">คุณแน่ใจหรือไม่ที่ต้องการลบข้อมูลนี้?</p>
+              <h3 className="text-3xl font-black text-gray-800">Confirm Delete?</h3>
+              <p className="text-md text-gray-500">Are you sure you want to delete this data?</p>
             </div>
             <div className="flex gap-4">
               <button 
                 className="btn btn-danger w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
                 onClick={confirmDeleteGrade}
               >
-                ลบ
+                Yes
               </button>
               <button 
                 onClick={handleCloseDeleteModal} 
                 className="btn btn-cancel w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded cursor-pointer"
               >
-                ยกเลิก
+                Cancal
               </button>
             </div>
           </div>

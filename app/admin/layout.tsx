@@ -54,7 +54,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           message={toast.message}
           type={toast.type}
           onClose={hideToast}
-          duration={3000}
+          duration={1000}
         />
       )}
     </div>
