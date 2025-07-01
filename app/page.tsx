@@ -1,9 +1,12 @@
 'use client'
 
+import Input from "./components/ui/Input"
+
+
 const HomePage = () => {
   return (
     <div>
-        Homepage
+      <Input />
     </div>
   )
 }

@@ -16,6 +16,7 @@ import {
   FaTrash,
 } from "react-icons/fa6";
 import { useToast } from "@/app/admin/ToastContext";
+import useDebounce from "@/app/hooks/useDebounce";
 
 const GradeList: React.FC = () => {
   const showToast = useToast();
@@ -38,13 +39,21 @@ const GradeList: React.FC = () => {
     string | number | null
   >(null);
 
-  const fetchGrades = useCallback(async (pageToFetch: number = currentPage) => {
+  const [searchQuery, setSearchQuery] = useState("")
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
+
+  const fetchGrades = useCallback(async (pageToFetch: number = currentPage, currentSearchQuery: string ) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/grade/?page=${currentPage}&limit=${itemsPerPage}`
-      );
+      const url = new URL(`http://127.0.0.1:8000/grade/`)
+      url.searchParams.append("page", pageToFetch.toString())
+      url.searchParams.append("limit", itemsPerPage.toString())
+      if (currentSearchQuery) {
+        url.searchParams.append("search", currentSearchQuery)
+      }
+
+      const response = await fetch(url.toString())
       if (!response.ok) {
         if (response.status === 404 && pageToFetch > 1) {
           setCurrentPage(prevPage => Math.max(1, prevPage - 1))
@@ -67,11 +76,11 @@ const GradeList: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage, showToast]);
+  }, [currentPage, itemsPerPage, showToast, debouncedSearchQuery]);
 
   useEffect(() => {
-    fetchGrades();
-  }, [fetchGrades]);
+    fetchGrades(1, debouncedSearchQuery);
+  }, [debouncedSearchQuery, fetchGrades]);
 
   const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
@@ -80,7 +89,7 @@ const GradeList: React.FC = () => {
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
     setCurrentPage(1)
-    fetchGrades(1);
+    setSearchQuery("")
   };
 
   const handleOpenEditModal = (gradeId: string | number) => {
@@ -91,7 +100,7 @@ const GradeList: React.FC = () => {
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setSelectedGradeId(null);
-    fetchGrades();
+    fetchGrades(currentPage, debouncedSearchQuery);
   };
 
   const handleOpenDeleteModal = (gradeId: string | number) => {
@@ -132,16 +141,20 @@ const GradeList: React.FC = () => {
 
       showToast("Delete success!", "success");
 
-      const currentItemsAfterDelete = grades.length - 1
+      const currentItemInPage = grades.length
       const newTotalItems = totalItems - 1
-      const newTotalPages = Math.ceil(newTotalItems / itemsPerPage)
 
-      if (currentItemsAfterDelete <= 0 && currentPage > 1) {
-        setCurrentPage(prevPage => Math.max(1, prevPage - 1))
+      if (newTotalItems === 0) {
+        setGrades([])
+        setTotalItems(0)
+        setCurrentPage(1)
+        setSearchQuery("")
+      } else if (currentItemInPage === 1 && currentPage > 1) {
+        setCurrentPage((prevPage) => Math.max(1, prevPage -1))
       } else {
-        fetchGrades(currentPage)
+        fetchGrades(currentPage, debouncedSearchQuery)
       }
-      handleCloseDeleteModal();
+      handleCloseDeleteModal()
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -160,11 +173,13 @@ const GradeList: React.FC = () => {
   const handlePageChange = (pageNumber: number) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
+      fetchGrades(pageNumber, debouncedSearchQuery)
     }
   };
 
   const getStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
   const getEndIndex = () => Math.min(currentPage * itemsPerPage, totalItems);
+
 
   if (loading) {
     return <LoadingSpinner />;
@@ -183,6 +198,15 @@ const GradeList: React.FC = () => {
       <>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Grade</h1>
+          <div className="flex items-center">
+          <input 
+            type="text" 
+            placeholder="Search..."
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
           <button
             onClick={handleOpenCreateModal}
             className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
@@ -190,7 +214,26 @@ const GradeList: React.FC = () => {
             <FaPlus className="mr-2" /> Create
           </button>
         </div>
-        <div className="text-center mt-8 text-gray-500">ไม่พบข้อมูลเกรด</div>
+        <table className="min-w-full table-auto border border-blue-600 shadow-lg shadow-blue-500/50">
+              <thead>
+                <tr>
+                  <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-white tracking-wider border-b border-blue-600">
+                    No.
+                  </th>
+                  <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-white tracking-wider border-b border-blue-600">
+                    Grade Name
+                  </th>
+                  <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium tracking-wider border-b border-blue-600"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-blue-700">
+                <tr>
+                  <td colSpan={3}>
+                    <div className="text-center py-4 text-gray-500 flex justify-center items-center">ไม่พบข้อมูลเกรด</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
         <CreateGradeModal
         isOpen={isCreateModalOpen}
         onClose={handleCloseCreateModal}
@@ -204,6 +247,15 @@ const GradeList: React.FC = () => {
     <div className="w-full flex flex-col min-h-[calc(100vh-100px)]">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Grade</h1>
+        <div className="flex items-center bg-white">
+          <input 
+            type="text" 
+            placeholder="Search..."
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
         <button
           onClick={handleOpenCreateModal}
           className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"

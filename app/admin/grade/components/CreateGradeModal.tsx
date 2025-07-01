@@ -3,6 +3,7 @@
 import Modal from "@/app/components/ui/Modal"
 import React, { useState } from "react"
 import { useToast } from "@/app/admin/ToastContext";
+import Input from "@/app/components/ui/Input";
 
 interface CreateGradeModalProps {
   isOpen: boolean
@@ -60,17 +61,12 @@ const CreateGradeModal: React.FC<CreateGradeModalProps> = ({ isOpen, onClose, on
       <Modal isOpen={isOpen} onClose={onClose} title="Create Data" >
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="gradeName" className="block text-gray-700 text-sm font-bold mb-2">
-              ชื่อเกรด:
-            </label>
-            <input
-              type="text"
-              id="gradeName"
-              value={gradeName}
-              onChange={(e) => setGradeName(e.target.value)}
-              placeholder="กรอกชื่อเกรดใหม่"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
+            <Input
+              label="ชื่อเกรด" 
+              type="text" 
+              id="gradeName" 
+              value={gradeName} 
+              onChange={(e) => setGradeName(e.target.value)} 
             />
           </div>
           {error && <div className="text-red-500 text-sm mb-4">{error}</div>}

@@ -41,6 +41,36 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isSidebarOpen, toggleSideba
               {isSidebarOpen && <span className="whitespace-nowrap">Grade</span>} 
             </Link>
           </li>
+          <li className="mb-2">
+            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-gray-700 transition duration-200 ease-in-out">
+              <FaGraduationCap className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
+              {isSidebarOpen && <span className="whitespace-nowrap">Universe</span>} 
+            </Link>
+          </li>
+          <li className="mb-2">
+            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-gray-700 transition duration-200 ease-in-out">
+              <FaGraduationCap className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
+              {isSidebarOpen && <span className="whitespace-nowrap">Series</span>} 
+            </Link>
+          </li>
+          <li className="mb-2">
+            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-gray-700 transition duration-200 ease-in-out">
+              <FaGraduationCap className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
+              {isSidebarOpen && <span className="whitespace-nowrap">Pilot</span>} 
+            </Link>
+          </li>
+          <li className="mb-2">
+            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-gray-700 transition duration-200 ease-in-out">
+              <FaGraduationCap className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
+              {isSidebarOpen && <span className="whitespace-nowrap">Mobile suit</span>} 
+            </Link>
+          </li>
+          <li className="mb-2">
+            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-gray-700 transition duration-200 ease-in-out">
+              <FaGraduationCap className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
+              {isSidebarOpen && <span className="whitespace-nowrap">Type</span>} 
+            </Link>
+          </li>
         </ul>
       </nav>
     </aside>

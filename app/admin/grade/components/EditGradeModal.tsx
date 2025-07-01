@@ -5,6 +5,7 @@ import { Grade } from "@/types/grade";
 import React, { useEffect, useState } from "react";
 import { useToast } from "@/app/admin/ToastContext";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
+import Input from "@/app/components/ui/Input";
 
 interface EditGradeModalProps {
   isOpen: boolean;
@@ -56,8 +57,7 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
   }, [isOpen, gradeId, showToast]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, grade_name: e.target.value}))
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,18 +115,12 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
     >
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="gradeName" className="block text-gray-700 text-sm font-bold mb-2">
-            ชื่อเกรด:
-          </label>
-          <input
+          <Input 
+            label="ชื่อเกรด"
             type="text"
             id="gradeName"
-            name="grade_name"
             value={formData.grade_name}
             onChange={handleInputChange}
-            placeholder="กรุณากรอกชื่อเกรด"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
           />
         </div>
         {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
