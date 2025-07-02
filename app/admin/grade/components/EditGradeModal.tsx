@@ -116,7 +116,7 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <Input 
-            label="ชื่อเกรด"
+            label="Grade Name"
             type="text"
             id="gradeName"
             value={formData.grade_name}

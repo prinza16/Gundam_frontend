@@ -1,26 +1,18 @@
 "use client";
 
-import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
-import { Grade, PaginatedResponseGrade } from "@/types/grade";
-import { useCallback, useEffect, useState } from "react";
-import CreateGradeModal from "./components/CreateGradeModal";
-import EditGradeModal from "./components/EditGradeModal";
-import ModalDelete from "@/app/components/ui/ModalDelete";
-import {
-  FaAnglesLeft,
-  FaAnglesRight,
-  FaChevronLeft,
-  FaChevronRight,
-  FaGear,
-  FaPlus,
-  FaTrash,
-} from "react-icons/fa6";
-import { useToast } from "@/app/admin/ToastContext";
+import React, { useCallback, useEffect, useState } from "react";
+import { useToast } from "../ToastContext";
+import { PaginatedResponseUniverse, Universe } from "@/types/universe";
 import useDebounce from "@/app/hooks/useDebounce";
+import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
+import { FaAnglesLeft, FaAnglesRight, FaChevronLeft, FaChevronRight, FaGear, FaPlus, FaTrash } from "react-icons/fa6";
+import ModalDelete from "@/app/components/ui/ModalDelete";
+import EditUniverseModal from "./components/EditUniverseModal";
+import CreateUniverseModal from "./components/CreateUniverseModal";
 
-const GradeList: React.FC = () => {
+const UniverseList: React.FC = () => {
   const showToast = useToast();
-  const [grades, setGrades] = useState<Grade[]>([]);
+  const [universes, setUniverses] = useState<Universe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,59 +22,59 @@ const GradeList: React.FC = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedGradeId, setSelectedGradeId] = useState<
+  const [selectedUniverseId, setSelectedUniverseId] = useState<
     string | number | null
   >(null);
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [gradeToDeleteId, setGradeToDeleteId] = useState<
+  const [universeToDeleteId, setUniverseToDeleteId] = useState<
     string | number | null
   >(null);
 
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
-  const fetchGrades = useCallback(async (pageToFetch: number = currentPage, currentSearchQuery: string ) => {
-    setLoading(false);
-    setError(null);
-    try {
-      const url = new URL(`http://127.0.0.1:8000/grade/`)
-      url.searchParams.append("page", pageToFetch.toString())
-      url.searchParams.append("limit", itemsPerPage.toString())
-      if (currentSearchQuery) {
-        url.searchParams.append("search", currentSearchQuery)
-      }
-
-      const response = await fetch(url.toString())
-      if (!response.ok) {
-        if (response.status === 404 && pageToFetch > 1) {
-          setCurrentPage(prevPage => Math.max(1, prevPage - 1))
-          return
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: PaginatedResponseGrade = await response.json();
-      setGrades(data.results);
-      setTotalItems(data.count);
-      setCurrentPage(pageToFetch)
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}`, "error");
-      } else {
-        setError("An unknown error occurred.");
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล", "error");
-      }
-    } finally {
+  const fetchUniverse = useCallback(async (pageToFetch: number = currentPage, currentSearchQuery: string ) => {
       setLoading(false);
-    }
-  }, [itemsPerPage, showToast]);
+      setError(null);
+      try {
+        const url = new URL(`http://127.0.0.1:8000/universe/`)
+        url.searchParams.append("page", pageToFetch.toString())
+        url.searchParams.append("limit", itemsPerPage.toString())
+        if (currentSearchQuery) {
+          url.searchParams.append("search", currentSearchQuery)
+        }
+  
+        const response = await fetch(url.toString())
+        if (!response.ok) {
+          if (response.status === 404 && pageToFetch > 1) {
+            setCurrentPage(prevPage => Math.max(1, prevPage - 1))
+            return
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: PaginatedResponseUniverse = await response.json();
+        setUniverses(data.results);
+        setTotalItems(data.count);
+        setCurrentPage(pageToFetch)
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+          showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}`, "error");
+        } else {
+          setError("An unknown error occurred.");
+          showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล", "error");
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, [itemsPerPage, showToast]);
 
-  useEffect(() => {
-    fetchGrades(1, debouncedSearchQuery);
-  }, [debouncedSearchQuery, fetchGrades]);
+    useEffect(() => {
+        fetchUniverse(1, debouncedSearchQuery);
+      }, [debouncedSearchQuery, fetchUniverse]);
 
-  const handleOpenCreateModal = () => {
+    const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
   };
 
@@ -92,35 +84,35 @@ const GradeList: React.FC = () => {
     setSearchQuery("")
   };
 
-  const handleOpenEditModal = (gradeId: string | number) => {
-    setSelectedGradeId(gradeId);
+  const handleOpenEditModal = (UniverseId: string | number) => {
+    setSelectedUniverseId(UniverseId);
     setIsEditModalOpen(true);
   };
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
-    setSelectedGradeId(null);
-    fetchGrades(currentPage, debouncedSearchQuery);
+    setSelectedUniverseId(null);
+    fetchUniverse(currentPage, debouncedSearchQuery);
   };
 
-  const handleOpenDeleteModal = (gradeId: string | number) => {
-    setGradeToDeleteId(gradeId);
+  const handleOpenDeleteModal = (UniverseId: string | number) => {
+    setUniverseToDeleteId(UniverseId);
     setOpenDeleteModal(true);
   };
 
   const handleCloseDeleteModal = () => {
     setOpenDeleteModal(false);
-    setGradeToDeleteId(null);
+    setUniverseToDeleteId(null);
   };
 
-  const confirmDeleteGrade = async () => {
-    if (gradeToDeleteId === null) return;
+  const confirmDeleteUniverse= async () => {
+    if (universeToDeleteId === null) return;
 
     setLoading(true);
     setError(null);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/grade/${gradeToDeleteId}/`,
+        `http://127.0.0.1:8000/universe/${universeToDeleteId}/`,
         {
           method: "PATCH",
           headers: {
@@ -141,18 +133,18 @@ const GradeList: React.FC = () => {
 
       showToast("Delete success!", "success");
 
-      const currentItemInPage = grades.length
+      const currentItemInPage = universes.length
       const newTotalItems = totalItems - 1
 
       if (newTotalItems === 0) {
-        setGrades([])
+        setUniverses([])
         setTotalItems(0)
         setCurrentPage(1)
         setSearchQuery("")
       } else if (currentItemInPage === 1 && currentPage > 1) {
         setCurrentPage((prevPage) => Math.max(1, prevPage -1))
       } else {
-        fetchGrades(currentPage, debouncedSearchQuery)
+        fetchUniverse(currentPage, debouncedSearchQuery)
       }
       handleCloseDeleteModal()
     } catch (err) {
@@ -172,13 +164,12 @@ const GradeList: React.FC = () => {
 
   const handlePageChange = (pageNumber: number) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
-      fetchGrades(pageNumber, debouncedSearchQuery)
+      fetchUniverse(pageNumber, debouncedSearchQuery)
     }
   };
 
-  const getStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-  const getEndIndex = () => Math.min(currentPage * itemsPerPage, totalItems);
-
+    const getStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
+    const getEndIndex = () => Math.min(currentPage * itemsPerPage, totalItems);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -192,11 +183,11 @@ const GradeList: React.FC = () => {
     );
   }
 
-  if (grades.length === 0) {
+  if (universes.length === 0) {
     return (
       <div className="w-full flex flex-col min-h-[calc(100vh-100px)] bg-gray-900 text-blue-100 p-6 rounded-lg shadow-x">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-200">Grade</h1>
+          <h1 className="text-3xl font-bold text-blue-200">Universe</h1>
           <div className="flex items-center bg-blue-900">
           <input 
             type="text" 
@@ -220,7 +211,7 @@ const GradeList: React.FC = () => {
                     No.
                   </th>
                   <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
-                    Grade Name
+                    Universe Name
                   </th>
                   <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600"></th>
                 </tr>
@@ -233,10 +224,10 @@ const GradeList: React.FC = () => {
                 </tr>
               </tbody>
             </table>
-        <CreateGradeModal
+        <CreateUniverseModal
         isOpen={isCreateModalOpen}
         onClose={handleCloseCreateModal}
-        onGradeCreated={() => fetchGrades(1, "")}
+        onUniverseCreated={() => fetchUniverse(1, "")}
         />
       </div>
     );
@@ -245,7 +236,7 @@ const GradeList: React.FC = () => {
   return (
     <div className="w-full flex flex-col min-h-[calc(100vh-100px)] bg-gray-900 text-blue-100 p-6 rounded-lg shadow-x">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-200">Grade</h1>
+        <h1 className="text-3xl font-bold text-blue-200">Universe</h1>
         <div className="flex items-center bg-blue-900">
           <input 
             type="text" 
@@ -262,7 +253,7 @@ const GradeList: React.FC = () => {
           <FaPlus className="mr-2" /> Create
         </button>
       </div>
-      {grades.length === 0 ? (
+      {universes.length === 0 ? (
         <div className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">ไม่พบข้อมูล</div>
       ) : (
         <>
@@ -274,33 +265,33 @@ const GradeList: React.FC = () => {
                     No.
                   </th>
                   <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
-                    Grade Name
+                    Universe Name
                   </th>
                   <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-blue-700">
-                {grades.map((grade, index) => (
+                {universes.map((universe, index) => (
                   <tr
-                    key={grade.grade_id}
+                    key={universe.universe_id}
                     className="bg-gray-800 transition duration-300 ease-in-out"
                   >
                     <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                       {index + 1}
                     </td>
                     <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
-                      {grade.grade_name}
+                      {universe.universe_name}
                     </td>
                     <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 flex items-center justify-center">
                       <button
-                        onClick={() => handleOpenEditModal(grade.grade_id)}
+                        onClick={() => handleOpenEditModal(universe.universe_id)}
                         className="btn inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded mr-2 cursor-pointer shadow-md shadow-cyan-500/50 transition duration-300 ease-in-out"
                       >
                         <FaGear className="mr-2" /> Repair
                       </button>
                       <button
                         className="btn inline-flex items-center bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded cursor-pointer shadow-md shadow-red-500/50 transition duration-300 ease-in-out"
-                        onClick={() => handleOpenDeleteModal(grade.grade_id)}
+                        onClick={() => handleOpenDeleteModal(universe.universe_id)}
                       >
                         <FaTrash className="mr-2" /> Delete
                       </button>
@@ -351,17 +342,17 @@ const GradeList: React.FC = () => {
         </>
       )}
 
-      <CreateGradeModal
+      <CreateUniverseModal
         isOpen={isCreateModalOpen}
         onClose={handleCloseCreateModal}
-        onGradeCreated={() => fetchGrades(1, "")}
+        onUniverseCreated={() => fetchUniverse(1, "")}
       />
-      {selectedGradeId && (
-        <EditGradeModal
+      {selectedUniverseId && (
+        <EditUniverseModal
           isOpen={isEditModalOpen}
           onClose={handleCloseEditModal}
-          gradeId={selectedGradeId}
-          onGradeUpdated={() => fetchGrades(currentPage, debouncedSearchQuery)}
+          universeId={selectedUniverseId}
+          onUniverseUpdated={() => fetchUniverse(currentPage, debouncedSearchQuery)}
         />
       )}
       <ModalDelete open={openDeleteModal} onClose={handleCloseDeleteModal}>
@@ -378,7 +369,7 @@ const GradeList: React.FC = () => {
           <div className="flex gap-4">
             <button
               className="btn btn-danger w-full bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded cursor-pointer"
-              onClick={confirmDeleteGrade}
+              onClick={confirmDeleteUniverse}
             >
               Yes
             </button>
@@ -392,6 +383,6 @@ const GradeList: React.FC = () => {
         </div>
       </ModalDelete>
     </div>
-  );
+    )
 };
-export default GradeList;
+export default UniverseList;

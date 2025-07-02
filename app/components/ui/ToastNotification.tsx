@@ -31,22 +31,27 @@ const ToastNotification: React.FC<ToastProps> = ({ message, type, onClose, durat
 
   let icon = null;
   let iconColor = '';
+  let shadowColor = ''
   switch (type) {
     case 'success':
-      iconColor = 'text-green-600'; 
-      icon = <FaCheckCircle className={`text-5xl mb-4 ${iconColor}`} />; 
+      iconColor = 'text-green-400'; 
+      shadowColor = 'shadow-green-500/50'
+      icon = <FaCheckCircle className={`text-5xl mb-4 ${iconColor} drop-shadow-lg ${shadowColor}`} />; 
       break;
     case 'error':
-      iconColor = 'text-red-600'; 
-      icon = <FaTimesCircle className={`text-5xl mb-4 ${iconColor}`} />;
+      iconColor = 'text-red-400'; 
+      shadowColor = 'shadow-red-500/50'
+      icon = <FaTimesCircle className={`text-5xl mb-4 ${iconColor} drop-shadow-lg ${shadowColor}`} />;
       break;
     case 'info':
-      iconColor = 'text-blue-600';
-      icon = <FaInfoCircle className={`text-5xl mb-4 ${iconColor}`} />;
+      iconColor = 'text-blue-400';
+      shadowColor = 'shadow-blue-500/50'
+      icon = <FaInfoCircle className={`text-5xl mb-4 ${iconColor} drop-shadow-lg ${shadowColor}`} />;
       break;
     default:
-      iconColor = 'text-gray-600';
-      icon = <FaInfoCircle className={`text-5xl mb-4 ${iconColor}`} />;
+      iconColor = 'text-gray-400';
+      shadowColor = 'shadow-gray-500/50'
+      icon = <FaInfoCircle className={`text-5xl mb-4 ${iconColor} drop-shadow-lg ${shadowColor}`} />;
   }
 
   return (
@@ -63,9 +68,9 @@ const ToastNotification: React.FC<ToastProps> = ({ message, type, onClose, durat
         <div
           className={`
             relative 
-            bg-white 
-            text-gray-800 
-            p-8 rounded-lg shadow-2xl 
+            bg-gray-800 
+            text-blue-100
+            p-8 rounded-lg shadow-lg shadow-blue-500/50 border border-blue-700
             flex flex-col items-center justify-center 
             max-w-xs w-full 
             transform transition-all duration-300 ease-out 
@@ -82,7 +87,7 @@ const ToastNotification: React.FC<ToastProps> = ({ message, type, onClose, durat
                 onClose(); 
               }, 200);
             }}
-            className="absolute top-3 right-3 p-1 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none" 
+            className="absolute top-3 right-3 p-1 rounded-lg text-blue-300 bg-transparent hover:bg-blue-700 hover:text-blue-100 focus:outline-none" 
           >
             <FaTimes className="text-xl" />
           </button>

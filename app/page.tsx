@@ -1,12 +1,12 @@
 'use client'
 
-import Input from "./components/ui/Input"
+import CreateSeriesModal from "./admin/series/components/CreateSeriesModal"
 
 
 const HomePage = () => {
   return (
     <div>
-      <Input />
+      HOME
     </div>
   )
 }

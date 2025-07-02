@@ -16,9 +16,9 @@ const Input = ({ label, type = "text", id, value, onChange }: InputProps) => {
           type={type}
           value={value}
           onChange={onChange}
-          className="px-4 py-2 text-lg outline-none border-2 border-gray-400 rounded hover:border-gray-600 duration-200 peer focus:border-indigo-600 w-full"
+          className="px-4 py-2 text-lg outline-none border-2 bg-gray-900 text-blue-200 border-blue-600 rounded hover:border-blue-500 duration-200 peer focus:border-cyan-500 focus:shadow-md focus:shadow-cyan-500/50 w-full"
         />
-        <span className="absolute left-0 top-3 px-1 text-lg uppercase tracking-wide peer-focus:text-indigo-600 pointer-events-none peer-focus:text-sm peer-focus:-translate-y-5 bg-white ml-2 peer-valid:text-sm peer-valid:-translate-y-5">
+        <span className="absolute left-0 top-3 px-1 text-lg tracking-wide peer-focus:text-cyan-500 pointer-events-none peer-focus:text-sm peer-focus:-translate-y-5 bg-gray-900 ml-2 peer-valid:text-cyan-500 peer-valid:text-sm peer-valid:-translate-y-5 transition-all duration-200">
           {label}
         </span>
       </label>

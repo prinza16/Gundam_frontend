@@ -63,7 +63,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
       <div
         ref={modalRef}
         className={`
-                bg-white rounded-lg shadow-xl max-w-lg w-full overflow-hidden
+                bg-gray-900 text-blue-100 rounded-lg shadow-lg shadow-blue-500/50 border border-blue-700 max-w-lg w-full
                 transform transition-all duration-300 ease-out 
                 ${
                   shouldAnimateContent
@@ -72,13 +72,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
                 }
             `}
       >
-        <div className="flex justify-between items-center p-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">
+        <div className="flex justify-between items-center p-4 border-b border-blue-700">
+          <h2 className="text-xl font-semibold text-blue-200">
             {title || "Modal"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl p-2 cursor-pointer"
+            className="text-blue-300 hover:text-blue-100 text-2xl p-2 cursor-pointer"
           >
             <FaX />
           </button>

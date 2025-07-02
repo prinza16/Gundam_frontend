@@ -62,7 +62,7 @@ const CreateGradeModal: React.FC<CreateGradeModalProps> = ({ isOpen, onClose, on
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <Input
-              label="ชื่อเกรด" 
+              label="Grade Name" 
               type="text" 
               id="gradeName" 
               value={gradeName} 
@@ -74,14 +74,14 @@ const CreateGradeModal: React.FC<CreateGradeModalProps> = ({ isOpen, onClose, on
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
+              className="bg-gray-700 hover:bg-gray-600 text-blue-200 font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer shadow-md shadow-cyan-500/50"
               disabled={loading}
             >
               {loading ? 'Saving...' : 'Save'}
