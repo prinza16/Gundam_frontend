@@ -9,7 +9,7 @@ export interface Type {
     types_name: string
     is_active: boolean
     create_date: string
-    udpate_date: string
+    update_date: string
 }
 
 export interface PaginatedResponseType {

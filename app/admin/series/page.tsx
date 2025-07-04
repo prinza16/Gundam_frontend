@@ -11,20 +11,20 @@ import EditSeriesModal from "./components/EditSeriesModal";
 import ModalDelete from "@/app/components/ui/ModalDelete";
 
 const SeriesList: React.FC = () => { 
-  const showToast = useToast();
-  const [series, setSeries] = useState<Series[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const showToast = useToast()
+  const [series, setSeries] = useState<Series[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const [totalItems, setTotalItems] = useState(0)
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedSeriesId, setSelectedSeriesId] = useState<
     string | number | null
-  >(null);
+  >(null)
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
   const [seriesToDeleteId, setSeriesToDeleteId] = useState<

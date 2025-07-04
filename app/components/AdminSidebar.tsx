@@ -55,13 +55,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isSidebarOpen, toggleSideba
             </Link>
           </li>
           <li className="mb-2">
-            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-blue-800 transition duration-200 ease-in-out">
+            <Link href="/admin/pilot" className="flex items-center py-2 px-4 rounded hover:bg-blue-800 transition duration-200 ease-in-out">
               <FaPersonMilitaryRifle className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
               {isSidebarOpen && <span className="whitespace-nowrap">Pilot</span>} 
             </Link>
           </li>
           <li className="mb-2">
-            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-blue-800 transition duration-200 ease-in-out">
+            <Link href="/admin/mobilesuit" className="flex items-center py-2 px-4 rounded hover:bg-blue-800 transition duration-200 ease-in-out">
               <FaRobot className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
               {isSidebarOpen && <span className="whitespace-nowrap">Mobile suit</span>} 
             </Link>
@@ -73,9 +73,9 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isSidebarOpen, toggleSideba
             </Link>
           </li>
           <li className="mb-2">
-            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-blue-800 transition duration-200 ease-in-out">
+            <Link href="/admin/seller" className="flex items-center py-2 px-4 rounded hover:bg-blue-800 transition duration-200 ease-in-out">
               <FaIndustry className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
-              {isSidebarOpen && <span className="whitespace-nowrap">Vendor</span>} 
+              {isSidebarOpen && <span className="whitespace-nowrap">Seller</span>} 
             </Link>
           </li>
         </ul>
