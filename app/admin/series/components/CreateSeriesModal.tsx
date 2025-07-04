@@ -7,6 +7,7 @@ import Input from "@/app/components/ui/Input"
 import Select from "@/app/components/ui/Select"
 import { SelectOption } from "@/types/select"
 import { PaginatedResponseUniverse } from "@/types/universe"
+import SelectFile from "@/app/components/ui/SelectFile"
 
 
 interface CreateSeriesModalProps {
@@ -24,6 +25,7 @@ const CreateSeriesModal: React.FC<CreateSeriesModalProps> = ({
   const [seriesName, setSeriesName] = useState("")
   const [selectedUniverseId, setSelectedUniverseId] = useState<number | ''>('')
   const [universeOptions, setUniverseOptions] = useState<SelectOption[]>([])
+  const [seriesImageFile, setSeriesImageFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoadingUniverses, setIsLoadingUniverses] = useState(false)
@@ -80,17 +82,19 @@ const CreateSeriesModal: React.FC<CreateSeriesModalProps> = ({
       return
     }
 
+    const formData = new FormData()
+    formData.append("series_name", seriesName)
+    formData.append("series_universe", String(selectedUniverseId))
+    formData.append("is_active", "true")
+
+    if (seriesImageFile) {
+      formData.append("series_image", seriesImageFile)
+    }
+
     try {
       const response = await fetch("http://127.0.0.1:8000/series/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          series_name: seriesName,
-          series_universe: selectedUniverseId, 
-          is_active: true,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -110,6 +114,7 @@ const CreateSeriesModal: React.FC<CreateSeriesModalProps> = ({
       onClose();
       setSeriesName("")
       setSelectedUniverseId('')
+      setSeriesImageFile(null)
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -143,6 +148,14 @@ const CreateSeriesModal: React.FC<CreateSeriesModalProps> = ({
               selectedValue={selectedUniverseId}
               onSelect={setSelectedUniverseId}
               disabled={isLoadingUniverses}
+            />
+          </div>
+          <div className="mb-4">
+            <SelectFile 
+              label="Series Image"
+              id="seriesImage"
+              onFileChange={setSeriesImageFile}
+              selectedFileName={seriesImageFile ? seriesImageFile.name : null}
             />
           </div>
           {error && <div className="text-red-500 text-sm mb-4">{error}</div>}

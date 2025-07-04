@@ -67,7 +67,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isSidebarOpen, toggleSideba
             </Link>
           </li>
           <li className="mb-2">
-            <Link href="#" className="flex items-center py-2 px-4 rounded hover:bg-blue-800 transition duration-200 ease-in-out">
+            <Link href="/admin/type" className="flex items-center py-2 px-4 rounded hover:bg-blue-800 transition duration-200 ease-in-out">
               <FaShapes className={isSidebarOpen ? "mr-3" : "mr-0"} size={20} />
               {isSidebarOpen && <span className="whitespace-nowrap">Type</span>} 
             </Link>

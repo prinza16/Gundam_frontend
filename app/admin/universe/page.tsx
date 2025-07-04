@@ -1,62 +1,71 @@
-"use client";
+"use client"
 
-import React, { useCallback, useEffect, useState } from "react";
-import { useToast } from "../ToastContext";
-import { PaginatedResponseUniverse, Universe } from "@/types/universe";
-import useDebounce from "@/app/hooks/useDebounce";
-import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
-import { FaAnglesLeft, FaAnglesRight, FaChevronLeft, FaChevronRight, FaGear, FaPlus, FaTrash } from "react-icons/fa6";
-import ModalDelete from "@/app/components/ui/ModalDelete";
-import EditUniverseModal from "./components/EditUniverseModal";
-import CreateUniverseModal from "./components/CreateUniverseModal";
+import React, { useCallback, useEffect, useState } from "react"
+import { useToast } from "../ToastContext"
+import { PaginatedResponseUniverse, Universe } from "@/types/universe"
+import useDebounce from "@/app/hooks/useDebounce"
+import LoadingSpinner from "@/app/components/ui/LoadingSpinner"
+import {
+  FaAnglesLeft,
+  FaAnglesRight,
+  FaChevronLeft,
+  FaChevronRight,
+  FaGear,
+  FaPlus,
+  FaTrash,
+} from "react-icons/fa6"
+import ModalDelete from "@/app/components/ui/ModalDelete"
+import EditUniverseModal from "./components/EditUniverseModal"
+import CreateUniverseModal from "./components/CreateUniverseModal"
 
 const UniverseList: React.FC = () => {
   const showToast = useToast();
-  const [universes, setUniverses] = useState<Universe[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [universes, setUniverses] = useState<Universe[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const [totalItems, setTotalItems] = useState(0)
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedUniverseId, setSelectedUniverseId] = useState<
     string | number | null
   >(null);
 
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false)
   const [universeToDeleteId, setUniverseToDeleteId] = useState<
     string | number | null
   >(null);
 
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
-  const fetchUniverse = useCallback(async (pageToFetch: number = currentPage, currentSearchQuery: string ) => {
+  const fetchUniverse = useCallback(
+    async (pageToFetch: number = currentPage, currentSearchQuery: string) => {
       setLoading(false);
       setError(null);
       try {
-        const url = new URL(`http://127.0.0.1:8000/universe/`)
-        url.searchParams.append("page", pageToFetch.toString())
-        url.searchParams.append("limit", itemsPerPage.toString())
+        const url = new URL(`http://127.0.0.1:8000/universe/`);
+        url.searchParams.append("page", pageToFetch.toString());
+        url.searchParams.append("limit", itemsPerPage.toString());
         if (currentSearchQuery) {
-          url.searchParams.append("search", currentSearchQuery)
+          url.searchParams.append("search", currentSearchQuery);
         }
-  
-        const response = await fetch(url.toString())
+
+        const response = await fetch(url.toString());
         if (!response.ok) {
           if (response.status === 404 && pageToFetch > 1) {
-            setCurrentPage(prevPage => Math.max(1, prevPage - 1))
-            return
+            setCurrentPage((prevPage) => Math.max(1, prevPage - 1));
+            return;
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: PaginatedResponseUniverse = await response.json();
         setUniverses(data.results);
         setTotalItems(data.count);
-        setCurrentPage(pageToFetch)
+        setCurrentPage(pageToFetch);
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
@@ -68,20 +77,22 @@ const UniverseList: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    }, [itemsPerPage, showToast]);
+    },
+    [itemsPerPage, showToast]
+  );
 
-    useEffect(() => {
-        fetchUniverse(1, debouncedSearchQuery);
-      }, [debouncedSearchQuery, fetchUniverse]);
+  useEffect(() => {
+    fetchUniverse(1, debouncedSearchQuery);
+  }, [debouncedSearchQuery, fetchUniverse]);
 
-    const handleOpenCreateModal = () => {
+  const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
   };
 
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
-    setCurrentPage(1)
-    setSearchQuery("")
+    setCurrentPage(1);
+    setSearchQuery("");
   };
 
   const handleOpenEditModal = (UniverseId: string | number) => {
@@ -105,7 +116,7 @@ const UniverseList: React.FC = () => {
     setUniverseToDeleteId(null);
   };
 
-  const confirmDeleteUniverse= async () => {
+  const confirmDeleteUniverse = async () => {
     if (universeToDeleteId === null) return;
 
     setLoading(true);
@@ -133,20 +144,20 @@ const UniverseList: React.FC = () => {
 
       showToast("Delete success!", "success");
 
-      const currentItemInPage = universes.length
-      const newTotalItems = totalItems - 1
+      const currentItemInPage = universes.length;
+      const newTotalItems = totalItems - 1;
 
       if (newTotalItems === 0) {
-        setUniverses([])
-        setTotalItems(0)
-        setCurrentPage(1)
-        setSearchQuery("")
+        setUniverses([]);
+        setTotalItems(0);
+        setCurrentPage(1);
+        setSearchQuery("");
       } else if (currentItemInPage === 1 && currentPage > 1) {
-        setCurrentPage((prevPage) => Math.max(1, prevPage -1))
+        setCurrentPage((prevPage) => Math.max(1, prevPage - 1));
       } else {
-        fetchUniverse(currentPage, debouncedSearchQuery)
+        fetchUniverse(currentPage, debouncedSearchQuery);
       }
-      handleCloseDeleteModal()
+      handleCloseDeleteModal();
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -164,12 +175,12 @@ const UniverseList: React.FC = () => {
 
   const handlePageChange = (pageNumber: number) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
-      fetchUniverse(pageNumber, debouncedSearchQuery)
+      fetchUniverse(pageNumber, debouncedSearchQuery);
     }
   };
 
-    const getStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-    const getEndIndex = () => Math.min(currentPage * itemsPerPage, totalItems);
+  const getStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
+  const getEndIndex = () => Math.min(currentPage * itemsPerPage, totalItems);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -189,14 +200,14 @@ const UniverseList: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-blue-200">Universe</h1>
           <div className="flex items-center bg-blue-900">
-          <input 
-            type="text" 
-            placeholder="Search..."
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in-out text-blue-200 placeholder-gray-400 border-blue-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+            <input
+              type="text"
+              placeholder="Search..."
+              className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in-out text-blue-200 placeholder-gray-400 border-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
           <button
             onClick={handleOpenCreateModal}
             className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer shadow-lg shadow-blue-500/50"
@@ -205,29 +216,31 @@ const UniverseList: React.FC = () => {
           </button>
         </div>
         <table className="min-w-full table-auto border border-blue-600 shadow-lg shadow-blue-500/50">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
-                    No.
-                  </th>
-                  <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
-                    Universe Name
-                  </th>
-                  <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-blue-700">
-                <tr className="bg-gray-800 transition duration-300 ease-in-out">
-                  <td colSpan={3}>
-                    <div className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">ไม่พบข้อมูลเกรด</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <thead>
+            <tr>
+              <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
+                No.
+              </th>
+              <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
+                Universe Name
+              </th>
+              <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-blue-700">
+            <tr className="bg-gray-800 transition duration-300 ease-in-out">
+              <td colSpan={3}>
+                <div className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+                  ไม่พบข้อมูลเกรด
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
         <CreateUniverseModal
-        isOpen={isCreateModalOpen}
-        onClose={handleCloseCreateModal}
-        onUniverseCreated={() => fetchUniverse(1, "")}
+          isOpen={isCreateModalOpen}
+          onClose={handleCloseCreateModal}
+          onUniverseCreated={() => fetchUniverse(1, "")}
         />
       </div>
     );
@@ -238,8 +251,8 @@ const UniverseList: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-blue-200">Universe</h1>
         <div className="flex items-center bg-blue-900">
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Search..."
             className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in-out text-blue-200 placeholder-gray-400 border-blue-500"
             value={searchQuery}
@@ -254,7 +267,9 @@ const UniverseList: React.FC = () => {
         </button>
       </div>
       {universes.length === 0 ? (
-        <div className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">ไม่พบข้อมูล</div>
+        <div className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+          ไม่พบข้อมูล
+        </div>
       ) : (
         <>
           <div className="flex-grow overflow-x-auto">
@@ -284,14 +299,18 @@ const UniverseList: React.FC = () => {
                     </td>
                     <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 flex items-center justify-center">
                       <button
-                        onClick={() => handleOpenEditModal(universe.universe_id)}
+                        onClick={() =>
+                          handleOpenEditModal(universe.universe_id)
+                        }
                         className="btn inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded mr-2 cursor-pointer shadow-md shadow-cyan-500/50 transition duration-300 ease-in-out"
                       >
                         <FaGear className="mr-2" /> Repair
                       </button>
                       <button
                         className="btn inline-flex items-center bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded cursor-pointer shadow-md shadow-red-500/50 transition duration-300 ease-in-out"
-                        onClick={() => handleOpenDeleteModal(universe.universe_id)}
+                        onClick={() =>
+                          handleOpenDeleteModal(universe.universe_id)
+                        }
                       >
                         <FaTrash className="mr-2" /> Delete
                       </button>
@@ -302,9 +321,7 @@ const UniverseList: React.FC = () => {
             </table>
           </div>
           <div className="flex justify-between items-center mt-1">
-            <div className="text-gray-600">
-
-            </div>
+            <div className="text-gray-600"></div>
             <div className="flex items-center">
               <button
                 onClick={() => handlePageChange(1)}
@@ -352,7 +369,9 @@ const UniverseList: React.FC = () => {
           isOpen={isEditModalOpen}
           onClose={handleCloseEditModal}
           universeId={selectedUniverseId}
-          onUniverseUpdated={() => fetchUniverse(currentPage, debouncedSearchQuery)}
+          onUniverseUpdated={() =>
+            fetchUniverse(currentPage, debouncedSearchQuery)
+          }
         />
       )}
       <ModalDelete open={openDeleteModal} onClose={handleCloseDeleteModal}>
@@ -383,6 +402,6 @@ const UniverseList: React.FC = () => {
         </div>
       </ModalDelete>
     </div>
-    )
+  );
 };
 export default UniverseList;
