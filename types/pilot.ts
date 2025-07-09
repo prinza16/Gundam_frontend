@@ -8,8 +8,7 @@ export interface Pilot {
     pilot_id: number
     pilot_name: string
     pilot_images: string
-    pilot_universe: string
-    pilot_universe_name: string
+    pilot_universe: number
     is_active: boolean
     create_date: string
     update_date: string
