@@ -7,7 +7,7 @@ export interface PilotDetailProps {
 export interface Pilot {
     pilot_id: number
     pilot_name: string
-    pilot_images: string
+    pilot_images: string | null
     pilot_universe: number
     is_active: boolean
     create_date: string

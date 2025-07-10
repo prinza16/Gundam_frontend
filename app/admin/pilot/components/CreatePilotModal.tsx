@@ -88,7 +88,7 @@ const CreatePilotModal: React.FC<CreatePilotModalProps> = ({
     }
 
     const formData = new FormData();
-    formData.append("pilot_name	", pilotsName);
+    formData.append("pilot_name", pilotsName);
     formData.append("pilot_universe", String(selectedUniverseId));
     formData.append("is_active", "true");
 

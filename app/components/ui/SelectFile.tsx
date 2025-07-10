@@ -55,9 +55,9 @@ const SelectFile: React.FC<SelectFileInputProps> = ({
             id={id}
             className={`
                 peer
-                file:bg-gradient-to-b file:from-blue-500 file:to-blue-600 file:px-6 file:py-3 file:border-none file:rounded file:text-white file:cursor-pointer file:shadow-lg file:shadow-blue-600/50 bg-gradient-to-br from-gray-600 to-gray-700 text-white/80 rounded cursor-pointer shadow-xl shadow-gray-700/60 w-full py-1 pl-1 pr-16 text-lg outline-none border-2 duration-200
+                file:bg-gradient-to-b file:from-blue-500 file:to-blue-600 file:px-6 file:py-3 file:border-none file:rounded file:text-white file:cursor-pointer bg-gradient-to-br  text-white/80 rounded cursor-pointer w-full py-1 pl-1 pr-16 text-lg outline-none border-2 duration-200
                 ${disabled ? 'bg-gray-700 text-gray-400 border-gray-600' : 'bg-gray-900 text-blue-200 border-blue-600 hover:border-blue-500'}
-                ${shouldLabelFloat ? 'border-cyan-500 shadow-md shadow-cyan-500/50' : ''}
+                ${shouldLabelFloat ? 'border-cyan-500' : ''}
                 ${disabled ? 'pointer-events-none' : ''}
             `}
             onChange={handleFileChange}
@@ -75,7 +75,7 @@ const SelectFile: React.FC<SelectFileInputProps> = ({
                 <img 
                     src={imagePreviewUrl} 
                     alt="Image Preview"
-                    className="max-w-full h-auto max-h-64 object-contain rounded-lg shadow-md" 
+                    className="max-w-full h-auto max-h-64 object-contain rounded-lg" 
                 />
             </div>
         )}

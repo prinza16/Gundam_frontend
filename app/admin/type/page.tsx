@@ -8,6 +8,7 @@ import LoadingSpinner from "@/app/components/ui/LoadingSpinner"
 import CreateTypeModal from "./components/CreateTypeModal"
 import { FaAnglesLeft, FaAnglesRight, FaChevronLeft, FaChevronRight, FaGears, FaPlus, FaTrash } from "react-icons/fa6"
 import ModalDelete from "@/app/components/ui/ModalDelete"
+import EditTypeModal from "./components/EditTypeModal"
 
 const TypeList: React.FC = () => {
   const showToast = useToast();
@@ -85,6 +86,17 @@ const TypeList: React.FC = () => {
     setIsCreateModalOpen(false)
     setCurrentPage(1)
     setSearchQuery("")
+  }
+
+  const handleOpenEditModal = (TypeId: string | number) => {
+    setSelectedTypeId(TypeId)
+    setIsEditModalOpen(true)
+  }
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false)
+    setSelectedTypeId(null)
+    fetchType(currentPage, debouncedSearchQuery)
   }
 
   const handleOpenDeleteModal = (TypeId: string | number) => {
@@ -277,7 +289,7 @@ const TypeList: React.FC = () => {
                     </td>
                     <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 flex items-center justify-center">
                       <button
-
+                        onClick={() => handleOpenEditModal(type.types_id)}
                         className="btn inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded mr-2 cursor-pointer shadow-md shadow-cyan-500/50 transition duration-300 ease-in-out"
                       >
                         <FaGears className="mr-2" /> Repair
@@ -338,6 +350,14 @@ const TypeList: React.FC = () => {
         onClose={handleCloseCreateModal}
         onTypeCreated={() => fetchType(1, "")}
       />
+      {selectedTypeId && (
+        <EditTypeModal 
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          typeId={selectedTypeId}
+          onTypeUpdated={() => fetchType(currentPage, debouncedSearchQuery)}
+        />
+      )}
 
       <ModalDelete open={openDeleteModal} onClose={handleCloseDeleteModal}>
         <div className="text-center w-full ">

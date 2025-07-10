@@ -16,6 +16,7 @@ import {
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import ModalDelete from "@/app/components/ui/ModalDelete";
 import CreateSellerModal from "./components/CreateSellerModal";
+import EditSellerModal from "./components/EditSellerModal";
 
 const SellerList: React.FC = () => {
   const showToast = useToast();
@@ -29,6 +30,9 @@ const SellerList: React.FC = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSellerId, setSelectedSellerId] = useState<
+    string | number | null
+  >(null)
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [sellerToDeleteId, setSellerToDeleteId] = useState<
@@ -90,6 +94,18 @@ const SellerList: React.FC = () => {
     setCurrentPage(1);
     setSearchQuery("");
   };
+
+  const handleOpenEditModal = (SellerId: string | number) => {
+    setSelectedSellerId(SellerId)
+    setIsEditModalOpen(true)
+
+  }
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false)
+    setSelectedSellerId(null)
+    fetchSellers(currentPage, debouncedSearchQuery)
+  }
 
   const handleOpenDeleteModal = (SellerId: string | number) => {
     setSellerToDeleteId(SellerId);
@@ -268,7 +284,9 @@ const SellerList: React.FC = () => {
               </thead>
               <tbody>
                 {sellers.map((seller, index) => (
-                  <tr key={seller.seller_id}>
+                  <tr key={seller.seller_id}
+                    className="bg-gray-800 transition duration-300 ease-in-out"
+                  >
                     <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                       {index + 1}
                     </td>
@@ -276,7 +294,9 @@ const SellerList: React.FC = () => {
                       {seller.seller_name}
                     </td>
                     <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 flex items-center justify-center">
-                      <button className="btn inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded mr-2 cursor-pointer shadow-md shadow-cyan-500/50 transition duration-300 ease-in-out">
+                      <button
+                        onClick={() => handleOpenEditModal(seller.seller_id)} 
+                        className="btn inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded mr-2 cursor-pointer shadow-md shadow-cyan-500/50 transition duration-300 ease-in-out">
                         <FaGears className="mr-2" /> Repair
                       </button>
                       <button
@@ -335,7 +355,14 @@ const SellerList: React.FC = () => {
         onClose={handleCloseCreateModal}
         onSellerCreated={() => fetchSellers(1, "")}
       />
-
+      {selectedSellerId && (
+        <EditSellerModal 
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          sellerId={selectedSellerId}
+          onSellerUpdated={() => fetchSellers(currentPage, debouncedSearchQuery)}
+        />
+      )}
       <ModalDelete open={openDeleteModal} onClose={handleCloseDeleteModal}>
         <div className="text-center w-full ">
           <FaTrash size={60} className="mx-auto text-red-600" />
