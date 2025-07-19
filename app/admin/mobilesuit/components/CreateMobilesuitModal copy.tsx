@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { useToast } from "../../ToastContext";
 import { SelectOption } from "@/types/select";
 import { PaginatedResponseGrade } from "@/types/grade";
+import Modal from "@/app/components/ui/Modal";
 import Input from "@/app/components/ui/Input";
 import Select from "@/app/components/ui/Select";
 import { PaginatedResponseSeller } from "@/types/seller";
 import { PaginatedResponseType } from "@/types/type";
 import DateCustom from "@/app/components/ui/DateCustom";
 import SelectFile from "@/app/components/ui/SelectFile";
-import ModalForMobilesuit from "@/app/components/ui/ModalForMobilesuit";
 
 interface CreateMobilesuitModalProps {
   isOpen: boolean;
@@ -184,13 +184,13 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
 
     const formData = new FormData();
     formData.append("model_name", mobilesuitName);
-    formData.append("model_length", boxLength);
-    formData.append("model_width", boxWidth);
-    formData.append("model_height", boxHeight);
-    formData.append("model_grade", String(selectedGradeId));
-    formData.append("model_seller", String(selectedSellerId));
-    formData.append("model_type", String(selectedTypeId));
-    formData.append("model_initial", dateReleases);
+    formData.append("box_length", boxLength);
+    formData.append("box_width", boxWidth);
+    formData.append("box_height", boxHeight);
+    formData.append("mobilesuit_grade", String(selectedGradeId));
+    formData.append("mobilesuit_seller", String(selectedSellerId));
+    formData.append("mobilesuit_type", String(selectedTypeId));
+    formData.append("date_releases", dateReleases);
     formData.append("is_active", "true");
 
     if (mobilesuitImage) {
@@ -198,7 +198,7 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/gundam_data/", {
+      const response = await fetch("http://127.0.0.1:8000/gundam_db/", {
         method: "POST",
         body: formData,
       });
@@ -242,7 +242,7 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
 
   return (
     <>
-      <ModalForMobilesuit isOpen={isOpen} onClose={onClose} title="Create Data">
+      <Modal isOpen={isOpen} onClose={onClose} title="Create Data">
         <form onSubmit={handleSubmit} className="overflow-auto">
           <div className="mb-4">
             <Input
@@ -253,27 +253,23 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
               onChange={(e) => setMobilesuitsName(e.target.value)}
             />
           </div>
-          <div className="mb-4 flex justify-between gap-3">
-            <div className="w-full">
-              <Select
-                label="Grade Name"
-                options={gradeOptions}
-                selectedValue={selectedGradeId}
-                onSelect={setSelectedGradeId}
-                disabled={isLoadingGrades}
-              />
-            </div>
-            <div className="w-full">
-              <Select
-                label="Seller Name"
-                options={sellerOptions}
-                selectedValue={selectedSellerId}
-                onSelect={setSelectedSellerId}
-                disabled={isLoadingSeller}
-              />
-            </div>
+          <div className="mb-4">
+            <Select
+              label="Grade Name"
+              options={gradeOptions}
+              selectedValue={selectedGradeId}
+              onSelect={setSelectedGradeId}
+              disabled={isLoadingGrades}
+            />
           </div>
           <div className="mb-4">
+            <Select
+              label="Seller Name"
+              options={sellerOptions}
+              selectedValue={selectedSellerId}
+              onSelect={setSelectedSellerId}
+              disabled={isLoadingSeller}
+            />
           </div>
           <div className="mb-4">
             <Select
@@ -284,34 +280,32 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
               disabled={isLoadingType}
             />
           </div>
-          <div className="mb-4 flex justify-between gap-3">
-            <div>
-              <Input
-                label="Box Length"
-                type="text"
-                id="boxLength"
-                value={boxLength}
-                onChange={(e) => setBoxLength(e.target.value)}
-              />
-            </div>
-            <div>
-              <Input
-                label="Box Width"
-                type="text"
-                id="boxWidth"
-                value={boxWidth}
-                onChange={(e) => setBoxWidth(e.target.value)}
-              />
-            </div>
-            <div>
-              <Input
-                label="Box Height"
-                type="text"
-                id="boxHeight"
-                value={boxHeight}
-                onChange={(e) => setBoxHeight(e.target.value)}
-              />
-            </div>
+          <div className="mb-4">
+            <Input
+              label="Box Length"
+              type="text"
+              id="boxLength"
+              value={boxLength}
+              onChange={(e) => setBoxLength(e.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <Input
+              label="Box Width"
+              type="text"
+              id="boxWidth"
+              value={boxWidth}
+              onChange={(e) => setBoxWidth(e.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <Input
+              label="Box Height"
+              type="text"
+              id="boxHeight"
+              value={boxHeight}
+              onChange={(e) => setBoxHeight(e.target.value)}
+            />
           </div>
           <div className="mb-4">
             <SelectFile
@@ -326,11 +320,7 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
               label="Date Releases"
               id="dateReleases"
               value={dateReleases}
-              onChange={(e) => {
-                const monthValue = e.target.value
-                const fullDate = `${monthValue}-01`
-                setDateReleases(fullDate)
-              }}
+              onChange={(e) => setDateReleases(e.target.value)}
             />
           </div>
           {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
@@ -352,7 +342,7 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
             </button>
           </div>
         </form>
-      </ModalForMobilesuit>
+      </Modal>
     </>
   );
 };

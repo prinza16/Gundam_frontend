@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useToast } from "../ToastContext";
-import { PaginatedResponsePilot, Pilot } from "@/types/pilot";
+import { PaginatedResponsePilotRead, PilotRead } from "@/types/pilot";
 import useDebounce from "@/app/hooks/useDebounce";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import {
@@ -16,10 +16,11 @@ import {
 } from "react-icons/fa6";
 import CreatePilotModal from "./components/CreatePilotModal";
 import ModalDelete from "@/app/components/ui/ModalDelete";
+import EditPilotModal from "./components/EditPilotModal";
 
 const PilotList: React.FC = () => {
   const showToast = useToast();
-  const [pilots, setPilots] = useState<Pilot[]>([]);
+  const [pilots, setPilots] = useState<PilotRead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,6 +30,9 @@ const PilotList: React.FC = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPilotId, setSelectedPilotId] = useState<
+    string | number | null
+  >(null)
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [pilotToDeleteId, setPilotToDeleteId] = useState<
@@ -58,7 +62,7 @@ const PilotList: React.FC = () => {
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data: PaginatedResponsePilot = await response.json();
+        const data: PaginatedResponsePilotRead = await response.json();
         setPilots(data.results);
         setTotalItems(data.count);
         setCurrentPage(pageToFetch);
@@ -90,6 +94,17 @@ const PilotList: React.FC = () => {
     setCurrentPage(1);
     setSearchQuery("");
   };
+
+  const handleOpenEditModal = (PilotId: string | number) => {
+    setSelectedPilotId(PilotId)
+    setIsEditModalOpen(true)
+  }
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false)
+    setSelectedPilotId(null)
+    fetchPilot(currentPage, debouncedSearchQuery)
+  }
 
   const handleOpenDeleteModal = (PilotId: string | number) => {
     setPilotToDeleteId(PilotId);
@@ -306,7 +321,7 @@ const PilotList: React.FC = () => {
                     </td>
                     <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 flex items-center justify-center">
                       <button
-                        // onClick={() => handleOpenEditModal(series.series_id)}
+                        onClick={() => handleOpenEditModal(pilot.pilot_id)}
                         className="btn inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded mr-2 cursor-pointer shadow-md shadow-cyan-500/50 transition duration-300 ease-in-out"
                       >
                         <FaGear className="mr-2" /> Repair
@@ -366,6 +381,14 @@ const PilotList: React.FC = () => {
         onClose={handleCloseCreateModal}
         onPilotCreated={() => fetchPilot(1, "")}
       />
+      {selectedPilotId && (
+        <EditPilotModal 
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          pilotId={selectedPilotId}
+          onPilotUpdated={() => fetchPilot(currentPage, debouncedSearchQuery)}
+        />
+      )}
       <ModalDelete open={openDeleteModal} onClose={handleCloseDeleteModal}>
         <div className="text-center w-full ">
           <FaTrash size={60} className="mx-auto text-red-600" />

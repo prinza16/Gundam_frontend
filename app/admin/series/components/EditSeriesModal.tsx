@@ -28,31 +28,23 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
   const [formData, setFormData] = useState<{
     series_name: string
     series_universe?: number
-    series_image?: string
+    series_image?: string | null
   }>({
     series_name: "",
   })
-  const [selectedUniverseId, setSelectedUniverseId] = useState<number | ''>('')
+
+  const fullImageUrl = formData.series_image
+    ? formData.series_image.startsWith('http')
+      ? formData.series_image
+      : `http://127.0.0.1:8000${formData.series_image}`
+    : undefined
+
+  const [selectedUniverseId, setSelectedUniverseId] = useState<string | number>('')
   const [universeOptions, setUniverseOptions] = useState<SelectOption[]>([])
   const [seriesImageFile, setSeriesImageFIle] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isLoadingUniverses, setIsLoadingUniverses] = useState(false)
-
-  useEffect(() => {
-    if (!seriesImageFile) {
-      setPreviewUrl(null)
-      return
-    }
-
-    const objectUrl = URL.createObjectURL(seriesImageFile)
-    setPreviewUrl(objectUrl)
-
-    return () => {
-      URL.revokeObjectURL(objectUrl)
-    }
-  }, [seriesImageFile])
 
   useEffect(() => {
     if (!isOpen || !seriesId) {
@@ -64,28 +56,15 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
       setIsLoadingUniverses(true)
       try {
         const response = await fetch("http://127.0.0.1:8000/universe/")
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
         const data: PaginatedResponseUniverse = await response.json()
         const actualOptions: SelectOption[] = data.results.map((universe) => ({
           value: universe.universe_id,
           label: universe.universe_name
         }))
 
-        const placeholderOption: SelectOption = {
-          value: '',
-          label: " ",
-        }
-
-        setUniverseOptions([placeholderOption, ...actualOptions])
+        setUniverseOptions([{ value: '', label: " " }, ...actualOptions])
       } catch (err) {
-      console.error("Error fetching universes:", err);
-      if (err instanceof Error) {
-        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล Universe: ${err.message}`, "error");
-      } else {
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล Universe", "error");
-      }
+        showToast("เกิดข้อผิดพลาดในการดึงข้อมูล Universe", "error")
       } finally {
         setIsLoadingUniverses(false)
       }
@@ -93,14 +72,8 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
 
     const fetchSeriesDetail = async () => {
       setLoading(true)
-      setError(null)
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/series/${seriesId}/`
-        )
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
+        const response = await fetch(`http://127.0.0.1:8000/series/${seriesId}/`)
         const data: Series = await response.json()
         setFormData({ 
           series_name: data.series_name, 
@@ -109,23 +82,12 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
         })
         setSelectedUniverseId(data.series_universe || '')
       } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message)
-          showToast(
-            `เกิดข้อผิดพลาดในการดึงข้อมูลเกรด: ${err.message}`,
-            "error"
-          )
-        } else {
-          setError("An unknown error occurred.")
-          showToast(
-            "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูลเกรด",
-            "error"
-          )
-        }
+        showToast("เกิดข้อผิดพลาดในการโหลดข้อมูล", "error")
       } finally {
         setLoading(false)
       }
     }
+
     fetchSeriesDetail()
     fetchUniverses()
   }, [isOpen, seriesId, showToast])
@@ -137,7 +99,6 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError(null)
 
     try {
       const formDataToSend = new FormData()
@@ -158,17 +119,11 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
         throw new Error(`HTTP error! ${response.status}: ${JSON.stringify(errorData)}`)
       }
 
-      showToast("Success!", "success")
+      showToast("แก้ไขสำเร็จ!", "success")
       onSeriesUpdated()
       onClose()
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message)
-        showToast(`เกิดข้อผิดพลาดในการแก้ไข: ${err.message}`, 'error')
-      } else {
-        setError("An unknown error occurred during update.")
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการแก้ไขข้อมูล", 'error')
-      }
+      showToast("เกิดข้อผิดพลาดในการแก้ไขข้อมูล", "error")
     } finally {
       setLoading(false)
     }
@@ -176,14 +131,14 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
 
   if (loading) {
     return (
-      <Modal isOpen={isOpen} onClose={onClose} title="กำลังโหลดข้อมูลเกรด...">
+      <Modal isOpen={isOpen} onClose={onClose} title="กำลังโหลดข้อมูล...">
         <LoadingSpinner />
       </Modal>
     )
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Edit Data`} >
+    <Modal isOpen={isOpen} onClose={onClose} title={`Edit Data`}>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <Input 
@@ -211,6 +166,7 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
             selectedFileName={
               seriesImageFile?.name || formData.series_image?.split("/").pop() || ""
             }
+            defaultImageUrl={fullImageUrl}
           />
         </div>
         {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
@@ -218,14 +174,14 @@ const EditSeriesModal: React.FC<EditSeriesModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md"
             disabled={loading}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
             disabled={loading}
           >
             {loading ? "Saving..." : "Save"}

@@ -8,7 +8,6 @@ import { FaGears, FaPlus, FaTrash } from "react-icons/fa6"
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner"
 import ModalDelete from "@/app/components/ui/ModalDelete"
 import CreateMobilesuitModal from "./components/CreateMobilesuitModal"
-import EditMobilesuitModal from "./components/EditMobilesuitModal"
 
 const MobilesuitList = () => {
     const showToast = useToast()
@@ -88,17 +87,6 @@ const MobilesuitList = () => {
     setSearchQuery("");
   };
 
-  const handleOpenEditModal = (MobilesuitId: string | number) => {
-    setSelectedMobilesuitsId(MobilesuitId)
-    setIsEditModalOpen(true)
-  }
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false)
-    setSelectedMobilesuitsId(null)
-    fetchMobilesuits(currentPage, debouncedSearchQuery)
-  }
-
   const handleOpenDeleteModal = (MobilesulitID: string | number) => {
     setMobilesuitsToDeleteID(MobilesulitID)
     setOpenDeleteModal(true)
@@ -106,7 +94,7 @@ const MobilesuitList = () => {
 
   const handleCloseDeleteModal = () => {
     setOpenDeleteModal(false)
-    setMobilesuitsToDeleteID(null)
+    setMobilesuitsToDeleteID(true)
   }
 
   const confirmDeleteMobilesuit = async () => {
@@ -273,59 +261,59 @@ const MobilesuitList = () => {
           ไม่พบข้อมูล
         </div>
       ) : (
-        <div className="overflow-x-auto w-full">
-            <table className="table-auto">
+        <div className="flex-grow overflow-x-auto">
+            <table>
                 <thead>
                     <tr>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap">
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
                             No.
                         </th>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap">
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
                             Mobilesuit Name
                         </th>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap">
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
                             Grade Name
                         </th>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap">
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
                             Seller Name
                         </th>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap">
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
                             Type Name
                         </th>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap">
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
                             Box size
                         </th>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap">
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
                             Image
                         </th>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap">
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600">
                             Date release
                         </th>
-                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600 whitespace-nowrap"></th>
+                        <th className="px-6 py-3 bg-blue-800 text-center text-2xl font-medium text-blue-100 tracking-wider border-b border-blue-600"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {mobilesuits.map((mobilesuit, index) => (
                         <tr key={mobilesuit.model_id}>
-                            <td className="whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+                            <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                                 {index + 1}
                             </td>
-                            <td className="whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+                            <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                                 {mobilesuit.model_name}
                             </td>
-                            <td className="whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+                            <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                                 {mobilesuit.model_grade_name}
                             </td>
-                            <td className="whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+                            <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                                 {mobilesuit.model_seller_name}
                             </td>
-                            <td className="whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+                            <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                                 {mobilesuit.model_type_name}
                             </td>
-                            <td className="whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+                            <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                                 {mobilesuit.model_width}ซม. x {mobilesuit.model_length}ซม. x {mobilesuit.model_height} ซม.
                             </td>
-                            <td className="whitespace-nowrap text-xl font-medium text-blue-200 text-center">
+                            <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 text-center">
                                 {mobilesuit.main_image ? (
                                     <img 
                                         src={mobilesuit.main_image}
@@ -340,9 +328,7 @@ const MobilesuitList = () => {
                                 {mobilesuit.release_date}
                             </td>
                             <td className="px-6 py-3 whitespace-nowrap text-xl font-medium text-blue-200 flex items-center justify-center">
-                            <button 
-                              onClick={() => handleOpenEditModal(mobilesuit.model_id)}
-                              className="btn inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded mr-2 cursor-pointer shadow-md shadow-cyan-500/50 transition duration-300 ease-in-out">
+                            <button className="btn inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded mr-2 cursor-pointer shadow-md shadow-cyan-500/50 transition duration-300 ease-in-out">
                                 <FaGears className="mr-2" /> Repair
                             </button>
                             <button
@@ -362,12 +348,7 @@ const MobilesuitList = () => {
           isOpen={isCreateModalOpen}
           onClose={handleCloseCreateModal}
           onMobilesuitCreated={() => fetchMobilesuits(1, "")}
-      />
-      <EditMobilesuitModal 
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        mobuilesui
-      />
+        />
       <ModalDelete open={openDeleteModal} onClose={handleCloseDeleteModal}>
         <div className="text-center w-full ">
           <FaTrash size={60} className="mx-auto text-red-600" />

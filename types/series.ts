@@ -9,7 +9,6 @@ export interface Series {
     series_name: string
     series_image: string | null
     series_universe: number
-    series_universe_name: string 
     is_active: boolean
     create_date: string
     update_date: string

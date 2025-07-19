@@ -4,4 +4,5 @@ export interface SelectFileInputProps {
     selectedFileName?: string | null
     id: string
     disabled?: boolean
+    defaultImageUrl?: string
 }

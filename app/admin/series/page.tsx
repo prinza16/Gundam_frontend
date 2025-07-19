@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useToast } from "../ToastContext";
-import { PaginatedResponseSeries, Series } from "@/types/series";
+import { PaginatedResponseSeriesRead, SeriesRead } from "@/types/series";
 import useDebounce from "@/app/hooks/useDebounce";
 import { FaAnglesLeft, FaAnglesRight, FaChevronLeft, FaChevronRight, FaGear, FaPlus, FaTrash } from "react-icons/fa6";
 import CreateSeriesModal from "./components/CreateSeriesModal";
@@ -12,7 +12,7 @@ import ModalDelete from "@/app/components/ui/ModalDelete";
 
 const SeriesList: React.FC = () => { 
   const showToast = useToast()
-  const [series, setSeries] = useState<Series[]>([])
+  const [series, setSeries] = useState<SeriesRead[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -54,7 +54,7 @@ const SeriesList: React.FC = () => {
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data: PaginatedResponseSeries = await response.json();
+        const data: PaginatedResponseSeriesRead = await response.json();
         setSeries(data.results);
         setTotalItems(data.count);
         setCurrentPage(pageToFetch);

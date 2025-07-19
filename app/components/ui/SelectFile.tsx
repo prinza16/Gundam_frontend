@@ -1,7 +1,7 @@
 'use client'
 
 import { SelectFileInputProps } from "@/types/selectfile"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 
 const SelectFile: React.FC<SelectFileInputProps> = ({
@@ -10,9 +10,16 @@ const SelectFile: React.FC<SelectFileInputProps> = ({
     selectedFileName,
     id,
     disabled = false,
+    defaultImageUrl,
 }) => {
     const [internalFileName, setInternalFileName] = useState<string | null>(selectedFileName || null)
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (!imagePreviewUrl && defaultImageUrl) {
+            setImagePreviewUrl(defaultImageUrl)
+        }
+    }, [defaultImageUrl, imagePreviewUrl])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null
