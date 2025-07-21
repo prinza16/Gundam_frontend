@@ -170,6 +170,14 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
     }
   }, [isOpen]);
 
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const monthValue = e.target.value
+    const fullDate = monthValue + '-01'
+    setDateReleases(fullDate)
+    console.log('Selected Month:', e.target.value)
+
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -325,12 +333,8 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
             <DateCustom
               label="Date Releases"
               id="dateReleases"
-              value={dateReleases}
-              onChange={(e) => {
-                const monthValue = e.target.value
-                const fullDate = `${monthValue}-01`
-                setDateReleases(fullDate)
-              }}
+              value={dateReleases ? dateReleases.slice(0,7) : ''}
+              onChange={handleMonthChange}
             />
           </div>
           {error && <div className="text-red-500 text-sm mb-4">{error}</div>}

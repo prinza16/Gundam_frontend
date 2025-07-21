@@ -6,15 +6,17 @@ interface InputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean
   required?: boolean
+  name?: string
 }
 
-const Input = ({ label, type = "text", id, value, onChange, disabled = false, required = false }: InputProps) => {
+const Input = ({ label, type = "text", id, value, onChange, disabled = false, required = false, name }: InputProps) => {
   return (
     <div className="relative w-full">
       <label className="relative block w-full">
         <input
           required
           id={id}
+          name={name}
           type={type}
           value={value}
           onChange={onChange}

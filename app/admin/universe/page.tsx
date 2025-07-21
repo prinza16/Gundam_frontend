@@ -179,9 +179,6 @@ const UniverseList: React.FC = () => {
     }
   };
 
-  const getStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-  const getEndIndex = () => Math.min(currentPage * itemsPerPage, totalItems);
-
   if (loading) {
     return <LoadingSpinner />;
   }
