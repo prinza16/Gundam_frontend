@@ -1,9 +1,12 @@
 'use client'
 
 import Modal from "@/app/components/ui/Modal"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useToast } from "@/app/admin/ToastContext";
 import Input from "@/app/components/ui/Input";
+import axiosInstance from "@/app/utils/axios";
+import axios from "axios";
+import { required, maxLength, validateForm } from "@/app/utils/validation";
 
 interface CreateGradeModalProps {
   isOpen: boolean
@@ -17,39 +20,64 @@ const CreateGradeModal: React.FC<CreateGradeModalProps> = ({ isOpen, onClose, on
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (isOpen) {
+      setGradeName('')
+      setError(null)
+    }
+  }, [isOpen])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError(null)
 
+    const formData = { gradeName }
+
+    const rules = {
+      gradeName: [
+        required("ชื่อเกรด"),
+        maxLength(10, "ชื่อเกรด")
+      ]
+    }
+
+    const errors = validateForm(formData, rules)
+
+    if (errors.gradeName) {
+      setError(errors.gradeName)
+      return
+    }
+
+    setLoading(true)
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/grade/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ grade_name: gradeName }),
-      })
+       await axiosInstance.post("/grade/", {
+        grade_name: gradeName.trim(),
+       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(`HTTP error! status: ${response.status}, Details: ${JSON.stringify(errorData)}`)
-      }
+       showToast('Success!', 'success')
+       onGradeCreated()
+       onClose()
+       setGradeName('')
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data
 
-      await response.json()
+        if (data && typeof data === "object") {
+          const messages = Object.values(data).flat().join(" ")
 
-      showToast('Success!', 'success')
-
-      onGradeCreated()
-      onClose() 
-      setGradeName('')
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message)
-        showToast(`เกิดข้อผิดพลาด: ${err.message}`, 'error')
+          setError(messages)
+          showToast(messages, "error")
+        } else if (err.response?.status === 500) {
+          setError("เกิดข้อผิดพลาดจากระบบ กรุณาลองใหม่ภายหลัง")
+          showToast("ระบบขัดข้อง กรุณาลองใหม่", "error")
+        } else {
+          setError("ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบอีกครั้ง")
+          showToast("ไม่สามารถส่งข้อมูลได้", "error")
+        }
       } else {
-        setError("An unknown error occurred during creation.")
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการสร้างเกรด", 'error')
+        const fallbackMessage = err.message || "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ"
+        setError(fallbackMessage)
+        showToast(fallbackMessage, "error")
       }
     } finally {
       setLoading(false)
@@ -67,9 +95,9 @@ const CreateGradeModal: React.FC<CreateGradeModalProps> = ({ isOpen, onClose, on
               id="gradeName" 
               value={gradeName} 
               onChange={(e) => setGradeName(e.target.value)} 
+              error={error}
             />
           </div>
-          {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
           <div className="flex justify-end gap-2">
             <button
               type="button"

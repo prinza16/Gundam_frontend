@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa6";
 import { useToast } from "@/app/admin/ToastContext";
 import useDebounce from "@/app/hooks/useDebounce";
+import axiosInstance from "../../utils/axios";
 
 const GradeList: React.FC = () => {
   const showToast = useToast();
@@ -42,41 +43,39 @@ const GradeList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
-  const fetchGrades = useCallback(async (pageToFetch: number = currentPage, currentSearchQuery: string ) => {
-    setLoading(false);
-    setError(null);
-    try {
-      const url = new URL(`http://127.0.0.1:8000/grade/`)
-      url.searchParams.append("page", pageToFetch.toString())
-      url.searchParams.append("limit", itemsPerPage.toString())
-      if (currentSearchQuery) {
-        url.searchParams.append("search", currentSearchQuery)
-      }
+  const fetchGrades = useCallback(
+    async (pageToFetch: number = currentPage, currentSearchQuery: string) => {
+      setLoading(true)
+      setError(null)
 
-      const response = await fetch(url.toString())
-      if (!response.ok) {
-        if (response.status === 404 && pageToFetch > 1) {
-          setCurrentPage(prevPage => Math.max(1, prevPage - 1))
-          return
+      try {
+        const params: any = {
+          page: pageToFetch,
+          limit: itemsPerPage,
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (currentSearchQuery) {
+          params.search = currentSearchQuery
+        }
+
+        const response = await axiosInstance.get<PaginatedResponseGrade>('/grade/', {
+          params,
+        })
+
+        setGrades(response.data.results)
+        setTotalItems(response.data.count)
+        setCurrentPage(pageToFetch)
+      } catch (err: any) {
+        const message = 
+          err.response?.data?.detail ||
+          err.message ||
+          'Unknown error occurred'
+          showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${message}`, 'error')
+      } finally {
+        setLoading(false)
       }
-      const data: PaginatedResponseGrade = await response.json();
-      setGrades(data.results);
-      setTotalItems(data.count);
-      setCurrentPage(pageToFetch)
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}`, "error");
-      } else {
-        setError("An unknown error occurred.");
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล", "error");
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [itemsPerPage, showToast]);
+    },
+    [itemsPerPage, showToast]
+  )
 
   useEffect(() => {
     fetchGrades(1, debouncedSearchQuery);
@@ -114,32 +113,15 @@ const GradeList: React.FC = () => {
   };
 
   const confirmDeleteGrade = async () => {
-    if (gradeToDeleteId === null) return;
-
-    setLoading(true);
-    setError(null);
+    if (gradeToDeleteId === null) return
+    setLoading(true)
+    setError(null)
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/grade/${gradeToDeleteId}/`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ is_active: 0 }),
-        }
-      );
+      await axiosInstance.patch(`/grade/${gradeToDeleteId}/`, {
+        is_active: 0,
+      })
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
-            errorData
-          )}`
-        );
-      }
-
-      showToast("Delete success!", "success");
+      showToast('Delete success!', 'success')
 
       const currentItemInPage = grades.length
       const newTotalItems = totalItems - 1
@@ -148,25 +130,22 @@ const GradeList: React.FC = () => {
         setGrades([])
         setTotalItems(0)
         setCurrentPage(1)
-        setSearchQuery("")
+        setSearchQuery('')
       } else if (currentItemInPage === 1 && currentPage > 1) {
-        setCurrentPage((prevPage) => Math.max(1, prevPage -1))
+        setCurrentPage((prevPage) => Math.max(1, prevPage - 1))
       } else {
         fetchGrades(currentPage, debouncedSearchQuery)
       }
+
       handleCloseDeleteModal()
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showToast(`เกิดข้อผิดพลาดในการลบ: ${err.message}`, "error");
-      } else {
-        setError("An unknown error occurred during deletion.");
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการลบข้อมูล", "error");
-      }
+    } catch (err: any) {
+      const message = err.response?.data?.detail || err.message || 'Unknown error'
+      setError(message)
+      showToast(`เกิดข้อผิดพลาดในการลบ: ${message}`, 'error')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -175,10 +154,6 @@ const GradeList: React.FC = () => {
       fetchGrades(pageNumber, debouncedSearchQuery)
     }
   };
-
-  const getStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-  const getEndIndex = () => Math.min(currentPage * itemsPerPage, totalItems);
-
 
   if (loading) {
     return <LoadingSpinner />;
@@ -379,6 +354,7 @@ const GradeList: React.FC = () => {
             <button
               className="btn btn-danger w-full bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded cursor-pointer"
               onClick={confirmDeleteGrade}
+              disabled={loading}
             >
               Yes
             </button>
@@ -386,7 +362,7 @@ const GradeList: React.FC = () => {
               onClick={handleCloseDeleteModal}
               className="btn btn-cancel w-full bg-gray-700 hover:bg-gray-600 text-blue-200 font-bold py-2 px-4 rounded cursor-pointer"
             >
-              Cancal
+              Cancel
             </button>
           </div>
         </div>

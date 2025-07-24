@@ -17,6 +17,7 @@ import {
 import ModalDelete from "@/app/components/ui/ModalDelete"
 import EditUniverseModal from "./components/EditUniverseModal"
 import CreateUniverseModal from "./components/CreateUniverseModal"
+import axiosInstance from "@/app/utils/axios"
 
 const UniverseList: React.FC = () => {
   const showToast = useToast();
@@ -44,42 +45,34 @@ const UniverseList: React.FC = () => {
 
   const fetchUniverse = useCallback(
     async (pageToFetch: number = currentPage, currentSearchQuery: string) => {
-      setLoading(false);
-      setError(null);
+      setLoading(true)
+      setError(null)
+
       try {
-        const url = new URL(`http://127.0.0.1:8000/universe/`);
-        url.searchParams.append("page", pageToFetch.toString());
-        url.searchParams.append("limit", itemsPerPage.toString());
+        const params: any = {
+          page: pageToFetch,
+          limit: itemsPerPage,
+        }
         if (currentSearchQuery) {
-          url.searchParams.append("search", currentSearchQuery);
+          params.search = currentSearchQuery
         }
 
-        const response = await fetch(url.toString());
-        if (!response.ok) {
-          if (response.status === 404 && pageToFetch > 1) {
-            setCurrentPage((prevPage) => Math.max(1, prevPage - 1));
-            return;
-          }
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: PaginatedResponseUniverse = await response.json();
-        setUniverses(data.results);
-        setTotalItems(data.count);
-        setCurrentPage(pageToFetch);
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-          showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}`, "error");
-        } else {
-          setError("An unknown error occurred.");
-          showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล", "error");
-        }
+        const response = await axiosInstance.get<PaginatedResponseUniverse>('/universe/', {
+          params,
+        })
+
+        setUniverses(response.data.results)
+        setTotalItems(response.data.count)
+        setCurrentPage(pageToFetch)
+      } catch (err: any) {
+        const message = err.response?.data?.detail || err.message || 'Unknown error occurred'
+        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${message}`, 'error')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     [itemsPerPage, showToast]
-  );
+  )
 
   useEffect(() => {
     fetchUniverse(1, debouncedSearchQuery);
@@ -117,59 +110,38 @@ const UniverseList: React.FC = () => {
   };
 
   const confirmDeleteUniverse = async () => {
-    if (universeToDeleteId === null) return;
+    if (universeToDeleteId === null) return
+    setLoading(true)
+    setError(null)
 
-    setLoading(true);
-    setError(null);
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/universe/${universeToDeleteId}/`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ is_active: 0 }),
-        }
-      );
+      await axiosInstance.patch(`/universe/${universeToDeleteId}/`, {
+        is_active: 0,
+      })
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
-            errorData
-          )}`
-        );
-      }
+      showToast('Delete success!', 'success')
 
-      showToast("Delete success!", "success");
-
-      const currentItemInPage = universes.length;
-      const newTotalItems = totalItems - 1;
+      const currentItemInPage = universes.length
+      const newTotalItems = totalItems - 1
 
       if (newTotalItems === 0) {
-        setUniverses([]);
-        setTotalItems(0);
-        setCurrentPage(1);
-        setSearchQuery("");
+        setUniverses([])
+        setTotalItems(0)
+        setCurrentPage(1)
+        setSearchQuery('')
       } else if (currentItemInPage === 1 && currentPage > 1) {
-        setCurrentPage((prevPage) => Math.max(1, prevPage - 1));
+        setCurrentPage((prevPage) => Math.max(1, prevPage - 1))
       } else {
-        fetchUniverse(currentPage, debouncedSearchQuery);
+        fetchUniverse(currentPage, debouncedSearchQuery)
       }
-      handleCloseDeleteModal();
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showToast(`เกิดข้อผิดพลาดในการลบ: ${err.message}`, "error");
-      } else {
-        setError("An unknown error occurred during deletion.");
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการลบข้อมูล", "error");
-      }
+    } catch (err: any) {
+      const message = err.response?.data?.detail || err.message || 'Unknown error'
+      setError(message)
+      showToast(`เกิดข้อผิดพลาดในการลบ: ${message}`, 'error')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 

@@ -17,3 +17,112 @@
 input[type="text"]:focus ~ .input-text{
     @apply text-blue-500 bg-white transform -translate-y-9 -translate-x-4 scale-75;
 }
+
+.react-datepicker {
+    font-size: 0.8rem;
+    background-color: #383838;
+    color: #ffffff !important;
+    border: 1px solid #aeaeae;
+    border-radius: 0.3rem;
+    display: inline-block;
+    position: relative;
+    line-height: initial;
+}
+
+.react-datepicker-year-header {
+    margin-top: 0;
+    color: #ffffff !important;
+    font-weight: bold;
+    font-size: 0.944rem;
+}
+
+.date-picker-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+}
+
+.custom-datepicker {
+    border: 2px solid #444;
+    border-radius: 5px;
+    padding: 10px;
+    width: 200px;
+    background-color: #2563eb;
+    color: #fff;
+}
+
+.react-datepicker {
+    border: 1px solid #2563eb !important;
+    border-radius: 5px;
+    background-color: #1f2937 !important;
+    color: white;
+}
+
+.react-datepicker__header {
+    background-color: #1e3a8a !important;
+    color: #fff;
+    border-bottom: 1px solid #2563eb;
+}
+
+.react-datepicker__day--selected {
+    background-color: #2563eb !important;
+    color: white !important;
+}
+
+.react-datepicker__day:hover {
+    background-color: #1d4ed8 !important;
+}
+
+.react-datepicker__day--weekend {
+    color: white;
+    background-color: transparent;
+}
+
+.react-datepicker__day--weekend:hover {
+    background-color: #555;
+}
+
+.react-datepicker__month-text {
+  padding: 0.5rem;
+  margin: 0.25rem;
+  border-radius: 0.375rem;
+  text-align: center;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.react-datepicker__month-text:hover {
+  background-color: #2563eb; /* Tailwind blue-600 */
+  color: white;
+  cursor: pointer;
+}
+
+.react-datepicker__month-text--selected {
+  background-color: #1e40af; /* Tailwind blue-800 */
+  color: white;
+  font-weight: bold;
+}
+
+.react-datepicker__month-text--keyboard-selected {
+  background-color: #1d4ed8; /* Tailwind blue-700 */
+  color: white;
+}
+
+.react-datepicker__day:not([aria-disabled=true]):hover,
+.react-datepicker__month-text:not([aria-disabled=true]):hover,
+.react-datepicker__quarter-text:not([aria-disabled=true]):hover,
+.react-datepicker__year-text:not([aria-disabled=true]):hover {
+  background-color: #2563eb !important; 
+  color: white !important;             
+  border-radius: 0.375rem;
+}
+
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__month-text--keyboard-selected,
+.react-datepicker__quarter-text--keyboard-selected,
+.react-datepicker__year-text--keyboard-selected {
+  border-radius: 0.375rem;
+  background-color: #1d4ed8 !important;
+  color: white !important;
+}

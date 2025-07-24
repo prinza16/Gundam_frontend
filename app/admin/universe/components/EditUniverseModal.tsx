@@ -6,6 +6,9 @@ import { Universe } from "@/types/universe";
 import Modal from "@/app/components/ui/Modal";
 import Input from "@/app/components/ui/Input";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
+import axiosInstance from "@/app/utils/axios";
+import { maxLength, required, validateForm } from "@/app/utils/validation";
+import axios from "axios";
 
 interface EditUniverseModalProps {
   isOpen: boolean
@@ -30,84 +33,166 @@ const EditUniverseModal: React.FC<EditUniverseModalProps> = ({
   useEffect(() => {
     if (!isOpen || !universeId) {
       setLoading(false)
-      return;
+      return
     }
 
     const fetchUniverseDetail = async () => {
       setLoading(true)
       setError(null)
+
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/universe/${universeId}/`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data: Universe = await response.json()
-        setFormData({ universe_name: data.universe_name })
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message)
-          showToast(
-            `เกิดข้อผิดพลาดในการดึงข้อมูลเกรด: ${err.message}`,
-            "error"
-          );
-        } else {
-          setError("An unknown error occurred.")
-          showToast(
-            "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูลเกรด",
-            "error"
-          );
-        }
+        const response = await axiosInstance.get<Universe>(`/universe/${universeId}/`)
+        setFormData({ universe_name: response.data.universe_name })
+      } catch (err: any) {
+        const message = err.response?.data?.detail || err.message || "Unknown error"
+        setError(message)
+        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูลเกรด: ${message}`, 'error')
       } finally {
         setLoading(false)
       }
-    };
+    }
+
     fetchUniverseDetail()
   }, [isOpen, universeId, showToast])
+
+  // useEffect(() => {
+  //   if (!isOpen || !universeId) {
+  //     setLoading(false)
+  //     return;
+  //   }
+
+  //   const fetchUniverseDetail = async () => {
+  //     setLoading(true)
+  //     setError(null)
+  //     try {
+  //       const response = await fetch(
+  //         `http://127.0.0.1:8000/universe/${universeId}/`
+  //       );
+  //       if (!response.ok) {
+  //         throw new Error(`HTTP error! status: ${response.status}`)
+  //       }
+  //       const data: Universe = await response.json()
+  //       setFormData({ universe_name: data.universe_name })
+  //     } catch (err) {
+  //       if (err instanceof Error) {
+  //         setError(err.message)
+  //         showToast(
+  //           `เกิดข้อผิดพลาดในการดึงข้อมูลเกรด: ${err.message}`,
+  //           "error"
+  //         );
+  //       } else {
+  //         setError("An unknown error occurred.")
+  //         showToast(
+  //           "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูลเกรด",
+  //           "error"
+  //         );
+  //       }
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   };
+  //   fetchUniverseDetail()
+  // }, [isOpen, universeId, showToast])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, universe_name: e.target.value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault()
-      setLoading(true)
-      setError(null)
-  
-      try {
-        const response = await fetch(`http://127.0.0.1:8000/universe/${universeId}/`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ universe_name: formData.universe_name }),
-        })
-  
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(
-            `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
-              errorData
-            )}`
-          )
-        }
-  
-        showToast("Success!", "success")
-        onUniverseUpdated()
-        onClose()
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message)
-          showToast(`เกิดข้อผิดพลาดในการแก้ไข: ${err.message}`, 'error')
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    const rules = {
+      universe_name: [
+        required("ชื่อจักรวาล"),
+        maxLength(100, "ชื่อจักรวาล")
+      ]
+    }
+
+    const errors = validateForm(formData, rules)
+
+    if (errors.universe_name) {
+      setError(errors.universe_name)
+      return
+    }
+
+    try {
+      await axiosInstance.patch(`/universe/${universeId}/`, {
+        universe_name: formData.universe_name.trim()
+      })
+
+      showToast("Success!", "success")
+      onUniverseUpdated()
+      onClose()
+    } catch (err: any) {
+      console.error("EditUniverseModal error:", err)
+
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data
+
+        if (data && typeof data === "object") {
+          const messages = Object.values(data).flat().join(" ")
+          setError(messages)
+          showToast(messages, "error")
+        } else if (err.response?.status === 500) {
+          const msg = "เกิดข้อผิดพลาดจากระบบ กรุณาลองใหม่ภายหลัง"
+          setError(msg)
+          showToast(msg, "error")
         } else {
-          setError("An unknown error occurred during update.");
-          showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการแก้ไขข้อมูล", 'error')
+          const msg = "ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบอีกครั้ง"
+          setError(msg)
+          showToast(msg, "error")
         }
-      } finally {
-        setLoading(false)
+      } else {
+        const fallbackMessage = err.message || "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ"
+        setError(fallbackMessage)
+        showToast(fallbackMessage, "error")
       }
-  };
+    } finally {
+      setLoading(false)
+    }
+
+  }
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //     e.preventDefault()
+  //     setLoading(true)
+  //     setError(null)
+  
+  //     try {
+  //       const response = await fetch(`http://127.0.0.1:8000/universe/${universeId}/`, {
+  //         method: "PATCH",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ universe_name: formData.universe_name }),
+  //       })
+  
+  //       if (!response.ok) {
+  //         const errorData = await response.json()
+  //         throw new Error(
+  //           `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
+  //             errorData
+  //           )}`
+  //         )
+  //       }
+  
+  //       showToast("Success!", "success")
+  //       onUniverseUpdated()
+  //       onClose()
+  //     } catch (err) {
+  //       if (err instanceof Error) {
+  //         setError(err.message)
+  //         showToast(`เกิดข้อผิดพลาดในการแก้ไข: ${err.message}`, 'error')
+  //       } else {
+  //         setError("An unknown error occurred during update.");
+  //         showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการแก้ไขข้อมูล", 'error')
+  //       }
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  // };
 
   if (loading) {
     return (

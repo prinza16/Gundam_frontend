@@ -8,9 +8,9 @@ import Input from "@/app/components/ui/Input";
 import Select from "@/app/components/ui/Select";
 import { PaginatedResponseSeller } from "@/types/seller";
 import { PaginatedResponseType } from "@/types/type";
-import DateCustom from "@/app/components/ui/DateCustom";
 import SelectFile from "@/app/components/ui/SelectFile";
 import ModalForMobilesuit from "@/app/components/ui/ModalForMobilesuit";
+import MonthYearDatePicker from "@/app/components/ui/MonthYearDatePicker";
 
 interface CreateMobilesuitModalProps {
   isOpen: boolean;
@@ -170,14 +170,6 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const monthValue = e.target.value
-    const fullDate = monthValue + '-01'
-    setDateReleases(fullDate)
-    console.log('Selected Month:', e.target.value)
-
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -330,11 +322,11 @@ const CreateMobilesuitModal: React.FC<CreateMobilesuitModalProps> = ({
             />
           </div>
           <div className="mb-4">
-            <DateCustom
+            <MonthYearDatePicker
               label="Date Releases"
               id="dateReleases"
-              value={dateReleases ? dateReleases.slice(0,7) : ''}
-              onChange={handleMonthChange}
+              value={dateReleases}
+              onChange={setDateReleases}
             />
           </div>
           {error && <div className="text-red-500 text-sm mb-4">{error}</div>}

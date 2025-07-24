@@ -7,9 +7,10 @@ interface InputProps {
   disabled?: boolean
   required?: boolean
   name?: string
+  error?: string | null
 }
 
-const Input = ({ label, type = "text", id, value, onChange, disabled = false, required = false, name }: InputProps) => {
+const Input = ({ label, type = "text", id, value, onChange, disabled = false, required = false, name, error }: InputProps) => {
   return (
     <div className="relative w-full">
       <label className="relative block w-full">
@@ -29,6 +30,10 @@ const Input = ({ label, type = "text", id, value, onChange, disabled = false, re
           {label}
         </span>
       </label>
+
+      {error && (
+        <p className="mt-1 text-sm text-red-500/90 font-medium italic drop-shadow-sm">{error}</p>
+      )}
     </div>
   );
 };

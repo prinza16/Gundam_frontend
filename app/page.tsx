@@ -1,9 +1,11 @@
 'use client'
 
+
+
 const HomePage = () => {
   return (
     <div>
-      HOME
+      home
     </div>
   )
 }

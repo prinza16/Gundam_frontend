@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useToast } from "../../ToastContext";
 import Modal from "@/app/components/ui/Modal";
 import Input from "@/app/components/ui/Input";
+import { maxLength, required, validateForm } from "@/app/utils/validation";
+import axios from "axios";
+import axiosInstance from "@/app/utils/axios";
 
 interface CreateUniverseModalProps {
   isOpen: boolean;
@@ -22,47 +25,61 @@ const CreateUniverseModal: React.FC<CreateUniverseModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setError(null)
+
+    const formData = { universeName }
+
+    const rules = {
+      universeName: [
+        required("ชื่อจักรวาล"),
+        maxLength(100, "ชื่อจักรวาล")
+      ]
+    }
+    
+    const errors = validateForm(formData, rules)
+
+    if (errors.universeName) {
+      setError(errors.universeName)
+      return
+    }
+
+    setLoading(true)
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/universe/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ universe_name: universeName }),
-      });
+      await axiosInstance.post("/universe/", {
+        universe_name: universeName.trim(),
+      })
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
-            errorData
-          )}`
-        );
-      }
+      showToast('Success!', 'success')
+      onUniverseCreated()
+      onClose()
+      setUniverseName('')
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data
 
-      await response.json();
-
-      showToast("Success!", "success");
-
-      onUniverseCreated();
-      onClose();
-      setUniverseName("");
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showToast(`เกิดข้อผิดพลาด: ${err.message}`, `error`);
+        if (data && typeof data === "object") {
+          const messages = Object.values(data).flat().join(" ")
+          setError(messages)
+          showToast(messages, "error")
+        } else if (err.response?.status === 500) {
+          setError("เกิดข้อผิดพลาดจากระบบ กรุณาลองใหม่ภายหลัง")
+          showToast("ระบบขัดข้อง กรุณาลองใหม่", "error")
+        } else {
+          setError("ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบอีกครั้ง")
+          showToast("ไม่สามารถส่งข้อมูลได้", "error")
+        }
       } else {
-        setError("An unknown error occurred during creation.");
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการสร้างเกรด", "error");
+        const fallbackMessage = err.message || "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ"
+        setError(fallbackMessage)
+        showToast(fallbackMessage, "error")
       }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} title="Create Data">

@@ -11,8 +11,8 @@ import Modal from "@/app/components/ui/Modal";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import Input from "@/app/components/ui/Input";
 import Select from "@/app/components/ui/Select";
-import DateCustom from "@/app/components/ui/DateCustom";
 import SelectFile from "@/app/components/ui/SelectFile";
+import MonthYearDatePicker from "@/app/components/ui/MonthYearDatePicker";
 
 interface EditMobilesuitModalProps {
   isOpen: boolean;
@@ -20,6 +20,12 @@ interface EditMobilesuitModalProps {
   mobilesuitId: string | number | null;
   onMobilesuitUpdated: () => void;
 }
+
+const formatMonthYear = (value: string) => {
+  const [year, month] = value.split("-");
+  const paddedMonth = month?.padStart(2, "0");
+  return `${year}-${paddedMonth}`;
+};
 
 const EditMobilesuitModal: React.FC<EditMobilesuitModalProps> = ({
   isOpen,
@@ -189,8 +195,13 @@ const EditMobilesuitModal: React.FC<EditMobilesuitModalProps> = ({
         formDataToSend.append("model_type", selectedTypeId.toString());
       }
 
-      if (dateReleases) {
-        formDataToSend.append("model_initial", `${dateReleases}-01`);
+      const formattedDate = formatMonthYear(dateReleases);
+      if (formattedDate && /^\d{4}-\d{2}$/.test(formattedDate)) {
+        formDataToSend.append("model_initial", `${formattedDate}-01`);
+      } else {
+        showToast("รูปแบบวันที่ไม่ถูกต้อง (ควรเป็น YYYY-MM)", "error");
+        setLoading(false);
+        return;
       }
 
       if (mobilesuitImage) {
@@ -302,11 +313,11 @@ const EditMobilesuitModal: React.FC<EditMobilesuitModalProps> = ({
           </div>
         </div>
         <div className="mb-4">
-          <DateCustom
+          <MonthYearDatePicker
             label="Date Releases"
             id="dateReleases"
             value={dateReleases}
-            onChange={(e) => setDateReleases(e.target.value)}
+            onChange={setDateReleases}
           />
         </div>
         <div className="mb-4">

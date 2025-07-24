@@ -6,6 +6,10 @@ import React, { useEffect, useState } from "react";
 import { useToast } from "@/app/admin/ToastContext";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import Input from "@/app/components/ui/Input";
+import axiosInstance from "@/app/utils/axios";
+import { BiMessageSquare } from "react-icons/bi";
+import axios from "axios";
+import { maxLength, required, validateForm } from "@/app/utils/validation";
 
 interface EditGradeModalProps {
   isOpen: boolean;
@@ -32,27 +36,21 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
     }
 
     const fetchGradeDetail = async () => {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
+
       try {
-        const response = await fetch(`http://127.0.0.1:8000/grade/${gradeId}/`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: Grade = await response.json();
-        setFormData({ grade_name: data.grade_name });
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-          showToast(`เกิดข้อผิดพลาดในการดึงข้อมูลเกรด: ${err.message}`, 'error');
-        } else {
-          setError("An unknown error occurred.");
-          showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูลเกรด", 'error');
-        }
+        const response = await axiosInstance.get<Grade>(`/grade/${gradeId}/`)
+        setFormData({ grade_name: response.data.grade_name })
+      } catch (err: any) {
+        const message = err.response?.data?.detail || err.message || "Unknown error"
+        setError(message)
+        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูลเกรด: ${message}`, 'error')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
+
     fetchGradeDetail();
   }, [isOpen, gradeId, showToast]);
 
@@ -65,37 +63,54 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
     setLoading(true);
     setError(null);
 
+    const rules = {
+      grade_name: [
+        required("ชื่อเกรด"),
+        maxLength(10, "ชื่อเกรด")
+      ]
+    }
+
+    const errors = validateForm(formData, rules)
+
+    if (errors.grade_name) {
+      setError(errors.grade_name)
+      return
+    }
+
     try {
-      const response = await fetch(`http://127.0.0.1:8000/grade/${gradeId}/`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ grade_name: formData.grade_name }),
-      });
+      await axiosInstance.patch(`/grade/${gradeId}/`, {
+        grade_name: formData.grade_name.trim()
+      })
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
-            errorData
-          )}`
-        );
-      }
+      showToast("Success!", "success")
+      onGradeUpdated()
+      onClose()
+    } catch (err: any) {
+      console.error("EditGradeModal error:", err)
 
-      showToast("Success!", "success");
-      onGradeUpdated();
-      onClose();
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showToast(`เกิดข้อผิดพลาดในการแก้ไข: ${err.message}`, 'error');
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data
+
+        if (data && typeof data === "object") {
+          const messages = Object.values(data).flat().join(" ")
+          setError(messages)
+          showToast(messages, "error")
+        } else if (err.response?.status === 500) {
+          const msg = "เกิดข้อผิดพลาดจากระบบ กรุณาลองใหม่ภายหลัง"
+          setError(msg)
+          showToast(msg, "error")
+        } else {
+          const msg = "ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบอีกครั้ง"
+          setError(msg)
+          showToast(msg, "error")
+        }
       } else {
-        setError("An unknown error occurred during update.");
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการแก้ไขข้อมูล", 'error');
+        const fallbackMessage = err.message || "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ"
+        setError(fallbackMessage)
+        showToast(fallbackMessage, "error")
       }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   };
 
@@ -121,9 +136,9 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
             id="gradeName"
             value={formData.grade_name}
             onChange={handleInputChange}
+            error={error}
           />
         </div>
-        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
          <div className="flex justify-end gap-2 mt-6">
           <button
             type="button"
