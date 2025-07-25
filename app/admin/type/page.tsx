@@ -9,6 +9,7 @@ import CreateTypeModal from "./components/CreateTypeModal"
 import { FaAnglesLeft, FaAnglesRight, FaChevronLeft, FaChevronRight, FaGears, FaPlus, FaTrash } from "react-icons/fa6"
 import ModalDelete from "@/app/components/ui/ModalDelete"
 import EditTypeModal from "./components/EditTypeModal"
+import axiosInstance from "@/app/utils/axios"
 
 const TypeList: React.FC = () => {
   const showToast = useToast();
@@ -35,44 +36,35 @@ const TypeList: React.FC = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
   const fetchType = useCallback(
-    async (pageToFetch: number = currentPage, currentSearchQuery: string) => {
-      setLoading(false)
+    async (pageToFatch: number = currentPage, currentSearchQuery: string) => {
+      setLoading(true)
       setError(null)
+
       try {
-        const url = new URL(`http://127.0.0.1:8000/gundam_data/types/`)
-        url.searchParams.append("page", pageToFetch.toString())
-        url.searchParams.append("limit", itemsPerPage.toString())
+        const params: any = {
+          page: pageToFatch,
+          limit: itemsPerPage,
+        }
         if (currentSearchQuery) {
-          url.searchParams.append("search", currentSearchQuery)
+          params.search = currentSearchQuery
         }
 
-        const response = await fetch(url.toString());
-        if (!response.ok) {
-          if (response.status === 404 && pageToFetch > 1) {
-            setCurrentPage((prevPage) => Math.max(1, (prevPage = 1)))
-            return
-          }
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
+        const response = await axiosInstance.get<PaginatedResponseType>('/gundam_data/types/', {
+          params,
+        })
 
-        const data: PaginatedResponseType = await response.json()
-        setType(data.results)
-        setTotalItems(data.count)
-        setCurrentPage(pageToFetch)
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message)
-          showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}`, "error")
-        } else {
-          setError("An unknown error occurred.");
-          showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล", "error")
-        }
+        setType(response.data.results)
+        setTotalItems(response.data.count)
+        setCurrentPage(pageToFatch)
+      } catch (err: any) {
+        const message = err.response?.data?.detail || err.message || 'Unknown error occurred'
+        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${message}`, 'error')
       } finally {
         setLoading(false)
       }
     },
     [itemsPerPage, showToast]
-  );
+  )
 
   useEffect(() => {
     fetchType(1, debouncedSearchQuery)
@@ -110,59 +102,41 @@ const TypeList: React.FC = () => {
   }
 
   const confirmDeleteType = async () => {
-    if (typeToDeleteId === null) 
-      return
+    if (typeToDeleteId === null ) return
     setLoading(true)
     setError(null)
+
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/gundam_data/types/${typeToDeleteId}/`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body:JSON.stringify({ is_active: 0})
-        }
-      )
+      await axiosInstance.patch(`/gundam_data/types/${typeToDeleteId}/`, {
+        is_active: 0,
+      })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(
-          `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
-            errorData
-          )}`
-        )
-      }
-
-      showToast("Delete success!", "success")
-
+      showToast('Delete success!', 'success')
+      
       const currentItemInPage = type.length
       const newTotalItems = totalItems - 1
-
+      
       if (newTotalItems === 0) {
         setType([])
         setTotalItems(0)
         setCurrentPage(1)
-        setSearchQuery("")
+        setSearchQuery('')
       } else if (currentItemInPage === 1 && currentPage > 1) {
-        setCurrentPage((prevPage) => Math.max(1, prevPage -1))
+        setCurrentPage((prevPage) => Math.max(1, prevPage - 1))
       } else {
         fetchType(currentPage, debouncedSearchQuery)
       }
-      handleCloseDeleteModal()
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showToast(`เกิดข้อผิดพลาดในการลบ: ${err.message}`, "error")
-      } else {
-        setError("An unknown error occurred during deletion.")
-        showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการลบข้อมูล", "error")
-      }
+
+    } catch (err: any) {
+      const message = err.response?.data?.detail || err.message || 'Unknown error'
+      setError(message)
+      showToast(`เกิดข้อผิดพลาดในการลบ: ${message}`, 'error')
     } finally {
       setLoading(false)
     }
   }
+
+
 
   const totalPages = Math.ceil(totalItems / itemsPerPage)
 

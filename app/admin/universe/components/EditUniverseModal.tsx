@@ -55,44 +55,6 @@ const EditUniverseModal: React.FC<EditUniverseModalProps> = ({
     fetchUniverseDetail()
   }, [isOpen, universeId, showToast])
 
-  // useEffect(() => {
-  //   if (!isOpen || !universeId) {
-  //     setLoading(false)
-  //     return;
-  //   }
-
-  //   const fetchUniverseDetail = async () => {
-  //     setLoading(true)
-  //     setError(null)
-  //     try {
-  //       const response = await fetch(
-  //         `http://127.0.0.1:8000/universe/${universeId}/`
-  //       );
-  //       if (!response.ok) {
-  //         throw new Error(`HTTP error! status: ${response.status}`)
-  //       }
-  //       const data: Universe = await response.json()
-  //       setFormData({ universe_name: data.universe_name })
-  //     } catch (err) {
-  //       if (err instanceof Error) {
-  //         setError(err.message)
-  //         showToast(
-  //           `เกิดข้อผิดพลาดในการดึงข้อมูลเกรด: ${err.message}`,
-  //           "error"
-  //         );
-  //       } else {
-  //         setError("An unknown error occurred.")
-  //         showToast(
-  //           "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูลเกรด",
-  //           "error"
-  //         );
-  //       }
-  //     } finally {
-  //       setLoading(false)
-  //     }
-  //   };
-  //   fetchUniverseDetail()
-  // }, [isOpen, universeId, showToast])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, universe_name: e.target.value }))
@@ -155,45 +117,6 @@ const EditUniverseModal: React.FC<EditUniverseModalProps> = ({
 
   }
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //     e.preventDefault()
-  //     setLoading(true)
-  //     setError(null)
-  
-  //     try {
-  //       const response = await fetch(`http://127.0.0.1:8000/universe/${universeId}/`, {
-  //         method: "PATCH",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({ universe_name: formData.universe_name }),
-  //       })
-  
-  //       if (!response.ok) {
-  //         const errorData = await response.json()
-  //         throw new Error(
-  //           `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
-  //             errorData
-  //           )}`
-  //         )
-  //       }
-  
-  //       showToast("Success!", "success")
-  //       onUniverseUpdated()
-  //       onClose()
-  //     } catch (err) {
-  //       if (err instanceof Error) {
-  //         setError(err.message)
-  //         showToast(`เกิดข้อผิดพลาดในการแก้ไข: ${err.message}`, 'error')
-  //       } else {
-  //         setError("An unknown error occurred during update.");
-  //         showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการแก้ไขข้อมูล", 'error')
-  //       }
-  //     } finally {
-  //       setLoading(false)
-  //     }
-  // };
-
   if (loading) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} title="กำลังโหลดข้อมูลเกรด...">
@@ -212,9 +135,9 @@ const EditUniverseModal: React.FC<EditUniverseModalProps> = ({
             id="universeName"
             value={formData.universe_name}
             onChange={handleInputChange}
+            error={error}
           />
         </div>
-        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
         <div className="flex justify-end gap-2 mt-6">
           <button
             type="button"

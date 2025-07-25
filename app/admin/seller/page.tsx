@@ -17,6 +17,7 @@ import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 import ModalDelete from "@/app/components/ui/ModalDelete";
 import CreateSellerModal from "./components/CreateSellerModal";
 import EditSellerModal from "./components/EditSellerModal";
+import axiosInstance from "@/app/utils/axios";
 
 const SellerList: React.FC = () => {
   const showToast = useToast();
@@ -44,42 +45,73 @@ const SellerList: React.FC = () => {
 
   const fetchSellers = useCallback(
     async (pageToFetch: number = currentPage, currentSearchQuery: string) => {
-      setLoading(false);
-      setError(null);
+      setLoading(true)
+      setError(null)
+
       try {
-        const url = new URL(`http://127.0.0.1:8000/gundam_data/seller/`);
-        url.searchParams.append("page", pageToFetch.toString());
-        url.searchParams.append("limit", itemsPerPage.toString());
+        const params: any = {
+          page: pageToFetch,
+          limit: itemsPerPage,
+        }
         if (currentSearchQuery) {
-          url.searchParams.append("search", currentSearchQuery);
+          params.search = currentSearchQuery
         }
 
-        const response = await fetch(url.toString());
-        if (!response.ok) {
-          if (response.status === 404 && pageToFetch > 1) {
-            setCurrentPage((prevPage) => Math.max(1, prevPage - 1));
-            return;
-          }
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: PaginatedResponseSeller = await response.json();
-        setSellers(data.results);
-        setTotalItems(data.count);
-        setCurrentPage(pageToFetch);
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-          showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}`, "error");
-        } else {
-          setError("An unknown error occurred.");
-          showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล", "error");
-        }
+        const response = await axiosInstance.get<PaginatedResponseSeller>('/gundam_data/seller/', {
+          params,
+        })
+
+        setSellers(response.data.results)
+        setTotalItems(response.data.count)
+        setCurrentPage(pageToFetch)
+      } catch (err: any) {
+        const message = err.response?.data?.detail || err.message || 'Unknown error occurred'
+        showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${message}`, 'error')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     [itemsPerPage, showToast]
-  );
+  )
+
+  // const fetchSellers = useCallback(
+  //   async (pageToFetch: number = currentPage, currentSearchQuery: string) => {
+  //     setLoading(false);
+  //     setError(null);
+  //     try {
+  //       const url = new URL(`http://127.0.0.1:8000/gundam_data/seller/`);
+  //       url.searchParams.append("page", pageToFetch.toString());
+  //       url.searchParams.append("limit", itemsPerPage.toString());
+  //       if (currentSearchQuery) {
+  //         url.searchParams.append("search", currentSearchQuery);
+  //       }
+
+  //       const response = await fetch(url.toString());
+  //       if (!response.ok) {
+  //         if (response.status === 404 && pageToFetch > 1) {
+  //           setCurrentPage((prevPage) => Math.max(1, prevPage - 1));
+  //           return;
+  //         }
+  //         throw new Error(`HTTP error! status: ${response.status}`);
+  //       }
+  //       const data: PaginatedResponseSeller = await response.json();
+  //       setSellers(data.results);
+  //       setTotalItems(data.count);
+  //       setCurrentPage(pageToFetch);
+  //     } catch (err) {
+  //       if (err instanceof Error) {
+  //         setError(err.message);
+  //         showToast(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}`, "error");
+  //       } else {
+  //         setError("An unknown error occurred.");
+  //         showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการดึงข้อมูล", "error");
+  //       }
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   },
+  //   [itemsPerPage, showToast]
+  // );
 
   useEffect(() => {
     fetchSellers(1, debouncedSearchQuery);

@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useState } from "react";
 import { useToast } from "../../ToastContext";
@@ -91,9 +91,9 @@ const CreateUniverseModal: React.FC<CreateUniverseModalProps> = ({
               id="universeName"
               value={universeName}
               onChange={(e) => setUniverseName(e.target.value)}
+              error={error}
             />
           </div>
-          {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
           <div className="flex justify-end gap-2">
             <button
               type="button"

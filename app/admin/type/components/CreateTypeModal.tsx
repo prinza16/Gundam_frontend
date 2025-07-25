@@ -4,6 +4,9 @@ import React, { useState } from "react"
 import { useToast } from "../../ToastContext"
 import Modal from "@/app/components/ui/Modal"
 import Input from "@/app/components/ui/Input"
+import { maxLength, required, validateForm } from "@/app/utils/validation"
+import axios from "axios"
+import axiosInstance from "@/app/utils/axios"
 
 interface CreateTypeModalProps {
   isOpen: boolean
@@ -23,41 +26,54 @@ const CreateTypeModal: React.FC<CreateTypeModalProps> = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault()
-      setLoading(true)
       setError(null)
 
+      const formData = { typeName }
+
+      const rules = {
+        typeName: [
+          required("ชื่อชนิด"),
+          maxLength(100, "ชื่อชนิด")
+        ]
+      }
+
+      const errors = validateForm(formData, rules)
+
+      if (errors.typeName) {
+        setError(errors.typeName)
+        return
+      }
+
+      setLoading(true)
+
       try {
-        const response = await fetch("http://127.0.0.1:8000/gundam_data/types/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ types_name: typeName }),
+        await axiosInstance.post(`/gundam_data/types/`, {
+          types_name: typeName.trim(),
         })
 
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(
-            `HTTP error! status: ${response.status}, Details: ${JSON.stringify(
-              errorData
-            )}`
-          )
-        }
-
-        await response.json()
-
-        showToast("Success!", "success")
-
+        showToast('Success!', 'success')
         onTypeCreated()
         onClose()
-        setTypeName("")
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message)
-          showToast(`เกิดข้อผิดพลาด: ${err.message}`, `error`)
+        setTypeName('')
+      } catch (err: any) {
+        if (axios.isAxiosError(err)) {
+          const data = err.response?.data
+
+          if (data && typeof data === "object") {
+            const messages = Object.values(data).flat().join(" ")
+            setError(messages)
+            showToast(messages, "error")
+          } else if (err.response?.status === 500) {
+            setError("เกิดข้อผิดพลาดจากระบบ กรุณาลองใหม่ภายหลัง")
+            showToast("ระบบขัดข้อง กรุณาลองใหม่", "error")
+          } else {
+            setError("ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบอีกครั้ง")
+            showToast("ไม่สามารถส่งข้อมูลได้", "error")
+          }
         } else {
-          setError("An unknown error occurred during creation.")
-          showToast("เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุระหว่างการสร้างเกรด", "error")
+          const fallbackMessage = err.message || "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ"
+          setError(fallbackMessage)
+          showToast(fallbackMessage, "error")
         }
       } finally {
         setLoading(false)
@@ -75,9 +91,9 @@ const CreateTypeModal: React.FC<CreateTypeModalProps> = ({
               id="typeName"
               value={typeName}
               onChange={(e) => setTypeName(e.target.value)}
+              error={error}
             />
           </div>
-          {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
           <div className="flex justify-end gap-2">
             <button
               type="button"
